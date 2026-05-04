@@ -2,2981 +2,1089 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REVENTURY® — Exodus. Le monde est votre bureau.</title>
-<meta name="description" content="L'Exodus n'est pas un sac. C'est votre infrastructure mobile. Pour ceux qui construisent en mouvement.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>REVENTURY® — Exodus. L'infrastructure mobile des bâtisseurs.</title>
+<meta name="description" content="L'Exodus 40L n'est pas un sac. C'est votre infrastructure mobile. Pour ceux qui construisent en mouvement.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* ============================================
-     RESET & ROOT VARIABLES
-     ============================================ */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --black: #060608;
-    --surface: #0d0d10;
-    --gold: #c8a84b;
-    --gold-dim: rgba(200,168,75,0.08);
-    --white: #f0efe8;
-    --muted: rgba(240,239,232,0.38);
-    --online: #3ddc84;
-    --border: rgba(255,255,255,0.06);
-    --font-display: 'Cormorant Garamond', serif;
-    --font-ui: 'Space Mono', monospace;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: var(--font-ui);
-    cursor: none;
-    overflow-x: hidden;
-  }
-
-  /* Noise texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity: 0.03;
-    pointer-events: none;
-    z-index: 9999;
-  }
-
-  /* ============================================
-     CUSTOM CURSOR
-     ============================================ */
-  #cursor {
-    position: fixed;
-    width: 8px;
-    height: 8px;
-    background: var(--gold);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 99999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s, background 0.2s, width 0.2s, height 0.2s;
-  }
-
-  #cursor-ring {
-    position: fixed;
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(200,168,75,0.5);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 99998;
-    transform: translate(-50%, -50%);
-    transition: transform 0.12s cubic-bezier(0.16,1,0.3,1), opacity 0.2s;
-  }
-
-  /* ============================================
-     SCROLL REVEAL
-     ============================================ */
-  .reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .reveal-delay-1 { transition-delay: 0.1s; }
-  .reveal-delay-2 { transition-delay: 0.2s; }
-  .reveal-delay-3 { transition-delay: 0.3s; }
-  .reveal-delay-4 { transition-delay: 0.4s; }
-  .reveal-delay-5 { transition-delay: 0.5s; }
-
-  /* ============================================
-     SECTION SHARED
-     ============================================ */
-  section {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .eyebrow {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-
-  .section-title {
-    font-family: var(--font-display);
-    font-weight: 300;
-    line-height: 1.05;
-  }
-
-  .gold-line {
-    width: 60px;
-    height: 1px;
-    background: var(--gold);
-    margin: 40px 0;
-  }
-
-  /* ============================================
-     SECTION 1 — HERO
-     ============================================ */
-  #hero {
-    position: relative;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  #hero-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 0;
-  }
-
-  #hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(6,6,8,0.75);
-    z-index: 1;
-  }
-
-  #hero-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(200,168,75,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(200,168,75,0.03) 1px, transparent 1px);
-    background-size: 80px 80px;
-    z-index: 2;
-    animation: gridShift 20s linear infinite;
-  }
-
-  @keyframes gridShift {
-    0% { background-position: 0 0; }
-    100% { background-position: 80px 80px; }
-  }
-
-  #hero-content {
-    position: relative;
-    z-index: 3;
-    text-align: center;
-    max-width: 900px;
-    padding: 0 40px;
-  }
-
-  #hero-logo {
-    font-family: var(--font-display);
-    font-size: 18px;
-    letter-spacing: 10px;
-    font-weight: 400;
-    color: var(--white);
-    text-transform: uppercase;
-    margin-bottom: 64px;
-    display: block;
-  }
-
-  #hero-logo sup {
-    font-size: 10px;
-    letter-spacing: 2px;
-  }
-
-  #hero-title {
-    font-family: var(--font-display);
-    font-size: clamp(60px, 8vw, 100px);
-    font-weight: 300;
-    line-height: 1.0;
-    color: var(--white);
-    margin-bottom: 28px;
-    letter-spacing: -1px;
-  }
-
-  #hero-subtitle {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    line-height: 1.8;
-    max-width: 520px;
-    margin: 0 auto 48px;
-  }
-
-  #countdown {
-    display: flex;
-    gap: 32px;
-    justify-content: center;
-    margin-bottom: 56px;
-  }
-
-  .countdown-unit {
-    text-align: center;
-  }
-
-  .countdown-value {
-    font-family: var(--font-display);
-    font-size: 40px;
-    font-weight: 300;
-    color: var(--gold);
-    display: block;
-    line-height: 1;
-  }
-
-  .countdown-label {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    margin-top: 6px;
-    display: block;
-  }
-
-  .countdown-sep {
-    font-family: var(--font-display);
-    font-size: 40px;
-    color: rgba(200,168,75,0.3);
-    line-height: 1;
-    margin-top: 4px;
-  }
-
-  #hero-ctas {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-  }
-
-  .btn-gold {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--black);
-    background: var(--gold);
-    border: none;
-    padding: 16px 36px;
-    cursor: none;
-    transition: background 0.3s, transform 0.2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn-gold:hover {
-    background: #d4b45a;
-    transform: translateY(-1px);
-  }
-
-  .btn-ghost {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--white);
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 16px 36px;
-    cursor: none;
-    transition: border-color 0.3s, color 0.3s, transform 0.2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn-ghost:hover {
-    border-color: var(--gold);
-    color: var(--gold);
-    transform: translateY(-1px);
-  }
-
-  /* Vertical text sides */
-  .hero-side-text {
-    position: absolute;
-    z-index: 3;
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 4px;
-    color: var(--muted);
-    writing-mode: vertical-rl;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  #hero-left-text { left: 40px; }
-  #hero-right-text { right: 40px; transform: translateY(-50%) rotate(180deg); }
-
-  /* Scroll indicator */
-  #scroll-indicator {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-
-  #scroll-line {
-    width: 1px;
-    height: 60px;
-    background: linear-gradient(to bottom, var(--gold), transparent);
-    animation: scrollPulse 2s ease-in-out infinite;
-  }
-
-  @keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; transform: scaleY(1); }
-    50% { opacity: 1; transform: scaleY(1.1); }
-  }
-
-  #scroll-text {
-    font-family: var(--font-ui);
-    font-size: 8px;
-    letter-spacing: 4px;
-    color: var(--muted);
-    writing-mode: vertical-rl;
-  }
-
-  /* ============================================
-     SECTION 2 — MISSION
-     ============================================ */
-  #mission {
-    padding: 140px 80px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  #mission-title {
-    font-size: clamp(52px, 7vw, 84px);
-    font-style: italic;
-    color: var(--gold);
-    margin-bottom: 40px;
-    font-weight: 300;
-  }
-
-  #mission-text {
-    font-family: var(--font-ui);
-    font-size: 13px;
-    line-height: 2;
-    color: var(--muted);
-    max-width: 660px;
-    margin-bottom: 0;
-  }
-
-  #mission-text2 {
-    font-family: var(--font-ui);
-    font-size: 13px;
-    line-height: 2;
-    color: var(--muted);
-    max-width: 660px;
-  }
-
-  #mission-quote {
-    font-family: var(--font-display);
-    font-size: clamp(40px, 5vw, 68px);
-    font-style: italic;
-    font-weight: 300;
-    color: var(--white);
-    margin-top: 60px;
-    line-height: 1.1;
-  }
-
-  /* ============================================
-     SECTION 3 — GLOBE
-     ============================================ */
-  #globe-section {
-    padding: 140px 0;
-    background: var(--surface);
-    position: relative;
-  }
-
-  #globe-inner {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 0 60px;
-  }
-
-  #globe-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 60px;
-  }
-
-  #globe-title-wrap .eyebrow { margin-bottom: 16px; }
-
-  #globe-title {
-    font-size: clamp(40px, 4vw, 56px);
-    color: var(--white);
-    font-weight: 300;
-  }
-
-  /* Currency selector */
-  #currency-selector {
-    display: flex;
-    gap: 4px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    padding: 6px;
-  }
-
-  .currency-btn {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    background: transparent;
-    border: none;
-    padding: 8px 14px;
-    cursor: none;
-    transition: all 0.2s;
-  }
-
-  .currency-btn.active {
-    background: var(--gold-dim);
-    color: var(--gold);
-    border: 1px solid rgba(200,168,75,0.3);
-  }
-
-  .currency-btn:hover:not(.active) {
-    color: var(--white);
-  }
-
-  #globe-layout {
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 60px;
-    align-items: center;
-  }
-
-  #globe-canvas-wrap {
-    position: relative;
-    height: 520px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #globe-canvas {
-    cursor: grab;
-  }
-
-  #globe-canvas:active { cursor: grabbing; }
-
-  /* Destination panel */
-  #dest-panel {
-    position: fixed;
-    right: -420px;
-    top: 0;
-    width: 420px;
-    height: 100vh;
-    background: #090910;
-    border-left: 1px solid rgba(200,168,75,0.15);
-    z-index: 1000;
-    padding: 60px 40px;
-    overflow-y: auto;
-    transition: right 0.5s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  #dest-panel.open { right: 0; }
-
-  #dest-panel-close {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: var(--font-ui);
-    font-size: 10px;
-    padding: 8px 12px;
-    cursor: none;
-    transition: all 0.2s;
-    letter-spacing: 2px;
-  }
-
-  #dest-panel-close:hover { color: var(--gold); border-color: var(--gold); }
-
-  #dest-panel-city {
-    font-family: var(--font-display);
-    font-size: 44px;
-    font-weight: 300;
-    color: var(--white);
-    margin-bottom: 4px;
-    margin-top: 20px;
-  }
-
-  #dest-panel-country {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    margin-bottom: 32px;
-  }
-
-  .dest-stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .dest-stat-label {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .dest-stat-value {
-    font-family: var(--font-display);
-    font-size: 22px;
-    color: var(--white);
-    font-weight: 300;
-  }
-
-  .dest-stars {
-    color: var(--gold);
-    font-size: 12px;
-    letter-spacing: 2px;
-  }
-
-  /* Tooltip */
-  #globe-tooltip {
-    position: fixed;
-    background: #0d0d14;
-    border: 1px solid rgba(200,168,75,0.25);
-    padding: 16px 20px;
-    pointer-events: none;
-    z-index: 500;
-    opacity: 0;
-    transition: opacity 0.2s;
-    min-width: 180px;
-  }
-
-  #globe-tooltip.visible { opacity: 1; }
-
-  .tooltip-city {
-    font-family: var(--font-display);
-    font-size: 22px;
-    color: var(--white);
-    font-weight: 300;
-  }
-
-  .tooltip-members {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    color: var(--gold);
-    letter-spacing: 2px;
-    margin-top: 4px;
-  }
-
-  .tooltip-cost {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    margin-top: 6px;
-  }
-
-  /* ============================================
-     SECTION 4 — STATS
-     ============================================ */
-  #stats {
-    padding: 120px 80px;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-
-  #stats-inner {
-    max-width: 1000px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 60px;
-    text-align: center;
-  }
-
-  .stat-number {
-    font-family: var(--font-display);
-    font-size: clamp(60px, 6vw, 90px);
-    font-weight: 300;
-    color: var(--gold);
-    line-height: 1;
-    display: block;
-  }
-
-  .stat-unit {
-    font-family: var(--font-display);
-    font-size: 32px;
-    color: rgba(200,168,75,0.5);
-  }
-
-  .stat-label {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    margin-top: 12px;
-    display: block;
-  }
-
-  .stat-divider {
-    width: 1px;
-    background: var(--border);
-    height: 80px;
-    margin: auto 0;
-    align-self: center;
-  }
-
-  /* ============================================
-     SECTION 5 — PRODUIT
-     ============================================ */
-  #product {
-    padding: 140px 0;
-  }
-
-  #product-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    min-height: 80vh;
-  }
-
-  #product-visual {
-    position: relative;
-    background: var(--surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 80px;
-    overflow: hidden;
-  }
-
-  #product-bag-img {
-    width: 100%;
-    max-width: 380px;
-    position: relative;
-    z-index: 2;
-    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.8));
-    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  #product-visual:hover #product-bag-img {
-    transform: scale(1.03) translateY(-8px);
-  }
-
-  /* Module hotspots */
-  .hotspot {
-    position: absolute;
-    z-index: 3;
-    cursor: none;
-  }
-
-  .hotspot-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--gold);
-    position: relative;
-    opacity: 0.3;
-    transition: opacity 0.3s;
-  }
-
-  .hotspot-dot::before {
-    content: '';
-    position: absolute;
-    inset: -6px;
-    border: 1px solid var(--gold);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-    opacity: 0;
-  }
-
-  @keyframes pulse {
-    0% { transform: scale(0.8); opacity: 0.8; }
-    100% { transform: scale(2); opacity: 0; }
-  }
-
-  .hotspot.active .hotspot-dot {
-    opacity: 1;
-  }
-
-  .hotspot-line {
-    position: absolute;
-    background: rgba(200,168,75,0.4);
-    height: 1px;
-    transform-origin: left center;
-    transition: opacity 0.3s;
-    opacity: 0;
-  }
-
-  .hotspot.active .hotspot-line { opacity: 1; }
-
-  .hotspot-label {
-    position: absolute;
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--gold);
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .hotspot.active .hotspot-label { opacity: 1; }
-
-  #product-info {
-    padding: 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  #product-title {
-    font-size: clamp(36px, 3.5vw, 52px);
-    font-weight: 300;
-    color: var(--white);
-    margin-bottom: 40px;
-    line-height: 1.15;
-  }
-
-  #product-specs {
-    display: flex;
-    gap: 32px;
-    margin-bottom: 36px;
-  }
-
-  .spec-item {
-    text-align: center;
-  }
-
-  .spec-value {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 300;
-    color: var(--gold);
-    display: block;
-  }
-
-  .spec-label {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    margin-top: 4px;
-    display: block;
-  }
-
-  #product-desc {
-    font-family: var(--font-ui);
-    font-size: 12px;
-    line-height: 2;
-    color: var(--muted);
-    margin-bottom: 48px;
-    max-width: 480px;
-  }
-
-  /* Modules grid */
-  #modules-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-top: 80px;
-  }
-
-  .module-card {
-    background: var(--surface);
-    padding: 32px 24px;
-    transition: background 0.3s;
-    cursor: none;
-  }
-
-  .module-card:hover {
-    background: #141420;
-  }
-
-  .module-card-img {
-    width: 100%;
-    height: 140px;
-    object-fit: contain;
-    margin-bottom: 20px;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
-    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  .module-card:hover .module-card-img {
-    transform: translateY(-6px) scale(1.05);
-  }
-
-  .module-card-name {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .module-card-role {
-    font-family: var(--font-display);
-    font-size: 20px;
-    color: var(--white);
-    font-weight: 300;
-    margin-bottom: 8px;
-  }
-
-  .module-card-price {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  /* ============================================
-     SECTION 6 — LOADOUT
-     ============================================ */
-  #loadout {
-    padding: 140px 0;
-    background: var(--black);
-  }
-
-  #loadout-header {
-    text-align: center;
-    margin-bottom: 80px;
-    padding: 0 60px;
-  }
-
-  #loadout-title {
-    font-size: clamp(40px, 4vw, 60px);
-    font-weight: 300;
-    color: var(--white);
-    margin-bottom: 16px;
-  }
-
-  #loadout-subtitle {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--muted);
-  }
-
-  #loadout-layout {
-    display: grid;
-    grid-template-columns: 28% 44% 28%;
-    min-height: 700px;
-  }
-
-  /* HUD corners mixin */
-  .hud-corners {
-    position: relative;
-  }
-
-  .hud-corners::before,
-  .hud-corners::after,
-  .hud-corners > .hc-tl,
-  .hud-corners > .hc-tr,
-  .hud-corners > .hc-bl,
-  .hud-corners > .hc-br {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border-color: rgba(200,168,75,0.4);
-    border-style: solid;
-    z-index: 10;
-  }
-
-  .hud-corners::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
-  .hud-corners::after { top: 0; right: 0; border-width: 1px 1px 0 0; }
-
-  /* Left panel */
-  #loadout-left {
-    background: #0a0a12;
-    padding: 48px 32px;
-    border-right: 1px solid var(--border);
-    overflow: hidden;
-  }
-
-  /* Scanlines */
-  #loadout-left::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(255,255,255,0.015) 3px,
-      rgba(255,255,255,0.015) 4px
-    );
-    pointer-events: none;
-    animation: scanMove 8s linear infinite;
-  }
-
-  @keyframes scanMove {
-    0% { background-position: 0 0; }
-    100% { background-position: 0 100px; }
-  }
-
-  /* HUD corners for left panel */
-  #loadout-left::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 16px;
-    height: 16px;
-    border-width: 0 0 1px 1px;
-    border-style: solid;
-    border-color: rgba(200,168,75,0.4);
-  }
-
-  .loadout-panel-corner {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border-style: solid;
-    border-color: rgba(200,168,75,0.4);
-    z-index: 10;
-  }
-
-  .lpc-tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
-  .lpc-tr { top: 0; right: 0; border-width: 1px 1px 0 0; }
-  .lpc-bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
-  .lpc-br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
-
-  #loadout-panel-title {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 4px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 32px;
-    padding-top: 8px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .loadout-slot {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    border: 1px solid var(--border);
-    margin-bottom: 8px;
-    cursor: none;
-    transition: all 0.25s;
-    position: relative;
-    z-index: 2;
-  }
-
-  .loadout-slot.active {
-    border-color: var(--gold);
-    background: var(--gold-dim);
-    box-shadow: 0 0 20px rgba(200,168,75,0.08);
-  }
-
-  .loadout-slot.mandatory {
-    border-color: rgba(200,168,75,0.5);
-    background: rgba(200,168,75,0.04);
-  }
-
-  .loadout-slot-img {
-    width: 44px;
-    height: 44px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
-  }
-
-  .loadout-slot-info { flex: 1; }
-
-  .loadout-slot-name {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--white);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 3px;
-  }
-
-  .loadout-slot-role {
-    font-family: var(--font-ui);
-    font-size: 8px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  .loadout-slot-price {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    color: var(--gold);
-    letter-spacing: 1px;
-  }
-
-  .loadout-badge {
-    font-family: var(--font-ui);
-    font-size: 7px;
-    letter-spacing: 1px;
-    padding: 3px 7px;
-    display: none;
-  }
-
-  .loadout-badge.equipped {
-    display: inline-block;
-    background: rgba(61,220,132,0.12);
-    color: var(--online);
-    border: 1px solid rgba(61,220,132,0.3);
-  }
-
-  /* Progress bar */
-  #loadout-progress-wrap {
-    margin-top: 24px;
-    position: relative;
-    z-index: 2;
-  }
-
-  #loadout-progress-label {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-ui);
-    font-size: 8px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-
-  #loadout-progress-bar {
-    height: 2px;
-    background: var(--border);
-    position: relative;
-  }
-
-  #loadout-progress-fill {
-    height: 100%;
-    background: var(--gold);
-    transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
-    box-shadow: 0 0 8px rgba(200,168,75,0.4);
-    width: 20%;
-  }
-
-  /* Center canvas */
-  #loadout-center {
-    background: #060810;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  #character-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  #character-particles {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  #char-hud-tl,
-  #char-hud-tr,
-  #char-hud-bl,
-  #char-hud-br {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-style: solid;
-    border-color: rgba(200,168,75,0.5);
-    z-index: 3;
-    pointer-events: none;
-  }
-
-  #char-hud-tl { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
-  #char-hud-tr { top: 16px; right: 16px; border-width: 1px 1px 0 0; }
-  #char-hud-bl { bottom: 16px; left: 16px; border-width: 0 0 1px 1px; }
-  #char-hud-br { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
-
-  #char-label {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-ui);
-    font-size: 8px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    z-index: 3;
-    opacity: 0.6;
-  }
-
-  /* Right panel */
-  #loadout-right {
-    background: #0a0a12;
-    padding: 48px 32px;
-    border-left: 1px solid var(--border);
-    overflow: hidden;
-  }
-
-  #loadout-summary-title {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 4px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 32px;
-    padding-top: 8px;
-    position: relative;
-    z-index: 2;
-  }
-
-  #loadout-items-list {
-    min-height: 200px;
-    margin-bottom: 32px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .loadout-item-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    animation: itemAppear 0.3s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  @keyframes itemAppear {
-    from { opacity: 0; transform: translateX(10px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  .loadout-item-name {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--white);
-  }
-
-  .loadout-item-price {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    color: var(--muted);
-  }
-
-  #loadout-total-wrap {
-    border-top: 1px solid rgba(200,168,75,0.2);
-    padding-top: 20px;
-    margin-bottom: 24px;
-    position: relative;
-    z-index: 2;
-  }
-
-  #loadout-total-label {
-    font-family: var(--font-ui);
-    font-size: 8px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  #loadout-total-price {
-    font-family: var(--font-display);
-    font-size: 52px;
-    font-weight: 300;
-    color: var(--online);
-    line-height: 1;
-    transition: color 0.3s;
-  }
-
-  #loadout-total-price.full {
-    color: var(--gold);
-  }
-
-  #loadout-early-bird {
-    display: none;
-    font-family: var(--font-ui);
-    font-size: 9px;
-    color: var(--gold);
-    letter-spacing: 2px;
-    margin-top: 8px;
-  }
-
-  #loadout-early-bird.visible { display: block; }
-
-  #loadout-includes {
-    background: rgba(200,168,75,0.04);
-    border: 1px solid rgba(200,168,75,0.1);
-    padding: 20px;
-    margin-bottom: 24px;
-    position: relative;
-    z-index: 2;
-  }
-
-  #loadout-includes-title {
-    font-family: var(--font-ui);
-    font-size: 8px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    margin-bottom: 14px;
-    text-transform: uppercase;
-  }
-
-  .include-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-ui);
-    font-size: 9px;
-    color: var(--muted);
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-  }
-
-  .include-dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--gold);
-    flex-shrink: 0;
-  }
-
-  #btn-loadout-confirm {
-    width: 100%;
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--black);
-    background: var(--gold);
-    border: none;
-    padding: 18px 24px;
-    cursor: none;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: block;
-    text-align: center;
-    position: relative;
-    z-index: 2;
-  }
-
-  #btn-loadout-confirm:hover {
-    background: #d4b45a;
-    box-shadow: 0 0 40px rgba(200,168,75,0.25);
-  }
-
-  /* ============================================
-     SECTION 7 — PLATFORM
-     ============================================ */
-  #platform {
-    padding: 140px 80px;
-    background: var(--surface);
-  }
-
-  #platform-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  #platform-title {
-    font-size: clamp(44px, 5vw, 72px);
-    font-weight: 300;
-    color: var(--white);
-    margin-bottom: 20px;
-  }
-
-  #platform-subtitle {
-    font-family: var(--font-ui);
-    font-size: 12px;
-    line-height: 2;
-    color: var(--muted);
-    max-width: 600px;
-    margin-bottom: 80px;
-  }
-
-  #platform-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-bottom: 60px;
-  }
-
-  .platform-card {
-    background: var(--black);
-    padding: 48px 40px;
-    transition: background 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .platform-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(200,168,75,0.3), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.6s;
-  }
-
-  .platform-card:hover { background: #0d0d14; }
-  .platform-card:hover::before { transform: translateX(100%); }
-
-  .platform-card-icon {
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    font-family: var(--font-ui);
-    margin-bottom: 20px;
-  }
-
-  .platform-card-title {
-    font-family: var(--font-display);
-    font-size: 28px;
-    font-weight: 300;
-    color: var(--white);
-    margin-bottom: 12px;
-  }
-
-  .platform-card-desc {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    line-height: 1.8;
-    color: var(--muted);
-  }
-
-  .platform-card-badge {
-    display: inline-block;
-    font-family: var(--font-ui);
-    font-size: 8px;
-    letter-spacing: 2px;
-    padding: 4px 10px;
-    background: rgba(61,220,132,0.08);
-    color: var(--online);
-    border: 1px solid rgba(61,220,132,0.2);
-    margin-top: 16px;
-  }
-
-  #platform-certified {
-    text-align: center;
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--gold);
-  }
-
-  /* ============================================
-     SECTION 8 — CTA FINAL
-     ============================================ */
-  #cta-final {
-    padding: 180px 80px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  #cta-glow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(200,168,75,0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  #cta-price-wrap {
-    position: relative;
-    z-index: 1;
-    margin-bottom: 24px;
-  }
-
-  #cta-price {
-    font-family: var(--font-display);
-    font-size: clamp(80px, 10vw, 120px);
-    font-weight: 300;
-    color: var(--gold);
-    line-height: 1;
-    display: block;
-  }
-
-  #cta-price-retail {
-    font-family: var(--font-display);
-    font-size: 24px;
-    color: var(--muted);
-    text-decoration: line-through;
-    display: block;
-    margin-top: 4px;
-  }
-
-  #cta-main-title {
-    font-size: clamp(28px, 3vw, 44px);
-    font-weight: 300;
-    color: var(--white);
-    margin-bottom: 48px;
-    position: relative;
-    z-index: 1;
-  }
-
-  #cta-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 56px;
-    position: relative;
-    z-index: 1;
-  }
-
-  #cta-list li {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  #cta-list li::before {
-    content: '';
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--gold);
-    flex-shrink: 0;
-  }
-
-  #cta-btn-wrap {
-    position: relative;
-    z-index: 1;
-    margin-bottom: 32px;
-  }
-
-  #cta-btn {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--black);
-    background: var(--gold);
-    border: none;
-    padding: 22px 56px;
-    cursor: none;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
-    box-shadow: 0 0 0 rgba(200,168,75,0.3);
-  }
-
-  #cta-btn:hover {
-    background: #d4b45a;
-    box-shadow: 0 0 60px rgba(200,168,75,0.3);
-    transform: translateY(-2px);
-  }
-
-  #cta-note {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    position: relative;
-    z-index: 1;
-  }
-
-  #cta-countdown {
-    display: flex;
-    gap: 32px;
-    justify-content: center;
-    margin-top: 64px;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ============================================
-     FOOTER
-     ============================================ */
-  footer {
-    padding: 48px 80px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .footer-brand {
-    font-family: var(--font-display);
-    font-size: 18px;
-    letter-spacing: 6px;
-    color: var(--white);
-  }
-
-  .footer-copy {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-  }
-
-  /* ============================================
-     RESPONSIVE
-     ============================================ */
-  @media (max-width: 900px) {
-    #globe-layout { grid-template-columns: 1fr; }
-    #globe-canvas-wrap { height: 380px; }
-    #product-split { grid-template-columns: 1fr; }
-    #loadout-layout { grid-template-columns: 1fr; }
-    #loadout-center { height: 500px; }
-    #modules-grid { grid-template-columns: repeat(2, 1fr); }
-    #platform-cards { grid-template-columns: 1fr; }
-    #stats-inner { grid-template-columns: 1fr; gap: 40px; }
-    .stat-divider { display: none; }
-    footer { flex-direction: column; gap: 16px; text-align: center; }
-    #mission { padding: 80px 32px; }
-    #product-info { padding: 48px 32px; }
-    #product-visual { padding: 48px; }
-    #loadout-left, #loadout-right { display: none; }
-  }
+:root{
+  --black:#060608;--surface:#0d0d10;--gold:#c8a84b;--gold-dim:rgba(200,168,75,.08);
+  --white:#f0efe8;--muted:rgba(240,239,232,.38);--green:#3ddc84;--border:rgba(255,255,255,.06);
+  --font-d:'Cormorant Garamond',serif;--font-u:'Space Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto;overflow-x:hidden}
+body{background:var(--black);color:var(--white);font-family:var(--font-u);cursor:none;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:9999}
+
+/* CURSOR */
+#cur{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur-r{position:fixed;width:32px;height:32px;border:1px solid rgba(200,168,75,.45);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:transform .15s,opacity .2s,border-color .2s}
+@media(max-width:768px){#cur,#cur-r{display:none}body{cursor:auto}}
+
+/* NAV MOBILE */
+#nav-mobile{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,8,.95);border-top:1px solid var(--border);z-index:1000;padding:0}
+#nav-mobile a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 12px;font-size:7px;letter-spacing:2px;color:var(--muted);text-decoration:none;text-transform:uppercase;transition:color .2s}
+#nav-mobile a.active,#nav-mobile a:active{color:var(--gold)}
+@media(max-width:768px){#nav-mobile{display:flex}}
+
+/* HERO */
+#hero{position:relative;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;will-change:transform}
+#hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,6,8,.55) 0%,rgba(6,6,8,.7) 60%,rgba(6,6,8,1) 100%);z-index:1}
+#hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(200,168,75,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(200,168,75,.025) 1px,transparent 1px);background-size:80px 80px;z-index:2;animation:gridDrift 30s linear infinite}
+@keyframes gridDrift{to{background-position:80px 80px}}
+#hero-particles{position:absolute;inset:0;z-index:3;pointer-events:none}
+#hero-content{position:relative;z-index:4;text-align:center;max-width:960px;padding:0 40px}
+#hero-logo{font-family:var(--font-d);font-size:18px;letter-spacing:10px;color:var(--white);display:block;margin-bottom:48px;font-weight:300}
+#hero-logo sup{font-size:10px;letter-spacing:2px}
+.hero-word{display:inline-block;overflow:hidden;vertical-align:bottom}
+.hero-word span{display:block}
+#hero-h1{font-family:var(--font-d);font-size:clamp(44px,7vw,100px);font-weight:300;line-height:1.05;color:var(--white);margin-bottom:8px;letter-spacing:-.5px}
+#hero-line{width:120px;height:1px;background:var(--gold);margin:20px auto 28px;display:block}
+#hero-sub{font-size:11px;line-height:1.9;color:var(--muted);max-width:540px;margin:0 auto 40px;letter-spacing:.5px}
+#hero-cd{display:flex;gap:24px;justify-content:center;margin-bottom:44px}
+.cd-u{text-align:center}
+.cd-v{font-family:var(--font-d);font-size:36px;font-weight:300;color:var(--gold);line-height:1;display:block}
+.cd-l{font-size:8px;letter-spacing:3px;color:var(--muted);margin-top:4px;display:block}
+.cd-sep{font-family:var(--font-d);font-size:36px;color:rgba(200,168,75,.25);line-height:1;margin-top:2px}
+#hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-pill{font-family:var(--font-u);font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:14px 32px;border-radius:40px;cursor:none;text-decoration:none;display:inline-block;transition:all .3s;white-space:nowrap;min-height:48px;display:inline-flex;align-items:center}
+.btn-pill-gold{background:var(--gold);color:var(--black);border:none}
+.btn-pill-gold:hover{background:#d4b45a;transform:translateY(-2px);box-shadow:0 0 30px rgba(200,168,75,.3)}
+.btn-pill-ghost{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.2)}
+.btn-pill-ghost:hover{border-color:var(--gold);color:var(--gold)}
+@media(max-width:768px){.btn-pill{min-height:54px;padding:16px 28px;cursor:auto}}
+.hero-side{position:absolute;z-index:4;font-size:9px;letter-spacing:4px;color:var(--muted);writing-mode:vertical-rl;top:50%;transform:translateY(-50%)}
+#hero-left{left:32px}
+#hero-right{right:32px;transform:translateY(-50%) rotate(180deg)}
+@media(max-width:768px){.hero-side{display:none}}
+#scroll-ind{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;gap:10px}
+#scroll-line{width:1px;height:56px;background:linear-gradient(var(--gold),transparent);animation:scrollPulse 2s ease-in-out infinite}
+#scroll-txt{font-size:8px;letter-spacing:4px;color:var(--muted);writing-mode:vertical-rl}
+@keyframes scrollPulse{0%,100%{opacity:.3;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.1)}}
+
+/* MISSION */
+#mission{padding:160px 80px;max-width:1100px;margin:0 auto}
+@media(max-width:768px){#mission{padding:100px 20px}}
+.eyebrow{font-family:var(--font-u);font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:28px}
+#mission-line{width:0;height:60px;background:var(--gold);position:absolute;left:0;top:0}
+.mission-wrap{position:relative;padding-left:24px}
+#mission-h2{font-family:var(--font-d);font-size:clamp(48px,6vw,84px);font-style:italic;font-weight:300;color:var(--gold);margin-bottom:48px;line-height:1.05;transform-origin:left center;perspective:800px}
+.mission-p{font-size:12px;line-height:2;color:var(--muted);max-width:660px;margin-bottom:32px}
+.mission-p .word{display:inline-block;opacity:0;transform:translateY(8px);transition:none}
+#mission-quote{font-family:var(--font-d);font-style:italic;font-weight:300;color:var(--white);font-size:20px;margin-top:64px;line-height:1.1;transition:none}
+
+/* PRODUIT */
+#product{padding:0 0 120px}
+#product-sticky-wrap{position:relative}
+#product-header{text-align:center;padding:120px 40px 80px}
+#product-h2{font-family:var(--font-d);font-size:clamp(44px,5vw,72px);font-weight:300;color:var(--white);margin-bottom:16px}
+#product-sub{font-size:11px;color:var(--muted);letter-spacing:1px}
+#product-split{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;max-width:1400px;margin:0 auto}
+@media(max-width:768px){#product-split{grid-template-columns:1fr}}
+#product-left{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center;background:var(--surface);overflow:hidden}
+@media(max-width:768px){#product-left{position:relative;height:60vw;min-height:300px}}
+#bag-wrap{position:relative;width:340px;max-width:85vw}
+#bag-img{width:100%;filter:drop-shadow(0 30px 80px rgba(0,0,0,.9));transition:transform .6s cubic-bezier(.16,1,.3,1)}
+#bag-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(200,168,75,.12) 0%,transparent 70%);animation:bagGlow 3s ease-in-out infinite;pointer-events:none}
+@keyframes bagGlow{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+.hs{position:absolute;cursor:none;z-index:10}
+.hs-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);position:relative;opacity:0;transition:opacity .4s}
+.hs-dot::before{content:'';position:absolute;inset:-5px;border:1px solid var(--gold);border-radius:50%;animation:hsPulse 2s ease-in-out infinite;opacity:0}
+@keyframes hsPulse{0%{transform:scale(.8);opacity:.8}100%{transform:scale(2.2);opacity:0}}
+.hs.on .hs-dot{opacity:1}
+.hs-lbl{position:absolute;font-size:8px;letter-spacing:2px;color:var(--gold);white-space:nowrap;opacity:0;transition:opacity .3s .1s}
+.hs.on .hs-lbl{opacity:1}
+.hs-line{position:absolute;height:1px;background:rgba(200,168,75,.4);transform-origin:left;opacity:0;transition:opacity .3s}
+.hs.on .hs-line{opacity:1}
+
+#product-right{padding:80px 64px;display:flex;flex-direction:column;gap:80px}
+@media(max-width:768px){#product-right{padding:40px 20px;gap:48px}}
+.prod-block{}
+.prod-block-title{font-family:var(--font-d);font-size:56px;font-weight:300;color:var(--white);margin-bottom:16px;line-height:1}
+@media(max-width:768px){.prod-block-title{font-size:40px}}
+.prod-block-desc{font-size:11px;color:var(--muted);line-height:2;max-width:420px}
+#prod-specs{display:flex;gap:32px;margin:40px 0}
+.spec-v{font-family:var(--font-d);font-size:52px;font-weight:300;color:var(--gold);display:block;line-height:1}
+.spec-l{font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:4px;display:block}
+#modules-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:0 0 48px}
+@media(max-width:768px){#modules-cards{grid-template-columns:repeat(2,1fr)}}
+.mc{background:var(--surface);padding:24px 20px;cursor:none;transition:background .3s}
+.mc:hover{background:#141420}
+.mc img{width:100%;height:110px;object-fit:contain;filter:drop-shadow(0 8px 20px rgba(0,0,0,.6));transition:transform .4s cubic-bezier(.16,1,.3,1);margin-bottom:16px}
+.mc:hover img{transform:translateY(-6px) scale(1.04)}
+.mc-tag{font-size:8px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
+.mc-name{font-family:var(--font-d);font-size:18px;color:var(--white);font-weight:300;margin-bottom:4px}
+.mc-price{font-size:9px;color:var(--muted)}
+
+/* LOADOUT */
+#loadout{padding:0;background:var(--black);overflow:hidden}
+#loadout-boot{position:relative;text-align:center;padding:120px 40px 64px;overflow:hidden}
+#loadout-boot::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 4px);pointer-events:none;animation:scanMove 8s linear infinite}
+@keyframes scanMove{to{background-position:0 100px}}
+#loadout-eyebrow{font-size:10px;letter-spacing:4px;color:var(--gold);margin-bottom:20px}
+#loadout-h2{font-family:var(--font-d);font-size:clamp(40px,4vw,60px);font-weight:300;color:var(--white)}
+#loadout-layout{display:grid;grid-template-columns:28% 44% 28%;min-height:720px}
+@media(max-width:768px){#loadout-layout{grid-template-columns:1fr;grid-template-rows:auto auto auto}}
+
+.hud-panel{position:relative;background:#0a0a12;overflow:hidden}
+.hud-panel::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 4px);pointer-events:none;animation:scanMove 10s linear infinite}
+.hc{position:absolute;width:16px;height:16px;border-style:solid;border-color:rgba(200,168,75,.5);z-index:10;pointer-events:none}
+.hc-tl{top:0;left:0;border-width:1px 0 0 1px}
+.hc-tr{top:0;right:0;border-width:1px 1px 0 0}
+.hc-bl{bottom:0;left:0;border-width:0 0 1px 1px}
+.hc-br{bottom:0;right:0;border-width:0 1px 1px 0}
+
+#loadout-left{padding:40px 28px}
+#loadout-left-title{font-size:8px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:28px;padding-top:8px;position:relative;z-index:2}
+.lslot{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);margin-bottom:6px;cursor:none;transition:all .25s;position:relative;z-index:2}
+@media(max-width:768px){.lslot{cursor:auto}}
+.lslot.active{border-color:var(--gold);background:var(--gold-dim);box-shadow:0 0 20px rgba(200,168,75,.08)}
+.lslot.mandatory{border-color:rgba(200,168,75,.4);background:rgba(200,168,75,.03)}
+.lslot img{width:40px;height:40px;object-fit:contain}
+.lslot-info{flex:1}
+.lslot-name{font-size:8px;letter-spacing:1.5px;color:var(--white);display:block;margin-bottom:2px}
+.lslot-role{font-size:7px;color:var(--muted);letter-spacing:1px}
+.lslot-price{font-size:8px;color:var(--gold)}
+.lbadge{font-size:6px;letter-spacing:1px;padding:2px 6px;background:rgba(61,220,132,.1);color:var(--green);border:1px solid rgba(61,220,132,.25);display:none}
+.lbadge.on{display:inline-block}
+#ld-progress-wrap{margin-top:20px;position:relative;z-index:2}
+#ld-progress-lbl{display:flex;justify-content:space-between;font-size:7px;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+#ld-progress-bar{height:2px;background:var(--border)}
+#ld-progress-fill{height:100%;background:var(--gold);transition:width .5s cubic-bezier(.16,1,.3,1);box-shadow:0 0 8px rgba(200,168,75,.5);width:20%}
+
+#loadout-center{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#060810}
+#char-canvas{position:absolute;inset:0;width:100%;height:100%}
+#char-particles{position:absolute;inset:0;pointer-events:none;z-index:2}
+.char-hc{position:absolute;width:20px;height:20px;border-style:solid;border-color:rgba(200,168,75,.5);z-index:3;pointer-events:none}
+#chc-tl{top:16px;left:16px;border-width:1px 0 0 1px}
+#chc-tr{top:16px;right:16px;border-width:1px 1px 0 0}
+#chc-bl{bottom:16px;left:16px;border-width:0 0 1px 1px}
+#chc-br{bottom:16px;right:16px;border-width:0 1px 1px 0}
+#char-lbl{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-size:7px;letter-spacing:3px;color:rgba(200,168,75,.5);z-index:3}
+
+#loadout-right{padding:40px 28px}
+#ld-right-title{font-size:8px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:28px;padding-top:8px;position:relative;z-index:2}
+#ld-items{min-height:180px;position:relative;z-index:2;margin-bottom:24px}
+.ld-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);animation:rowIn .3s cubic-bezier(.16,1,.3,1)}
+@keyframes rowIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.ld-row-name{font-size:8px;letter-spacing:1px;color:var(--white)}
+.ld-row-price{font-size:8px;color:var(--muted)}
+#ld-total-wrap{border-top:1px solid rgba(200,168,75,.2);padding-top:18px;margin-bottom:20px;position:relative;z-index:2}
+#ld-total-lbl{font-size:7px;letter-spacing:3px;color:var(--muted);display:block;margin-bottom:6px}
+#ld-total{font-family:var(--font-d);font-size:52px;font-weight:300;color:var(--green);line-height:1;transition:color .3s}
+#ld-total.full{color:var(--gold)}
+#ld-eb{font-size:8px;color:var(--gold);letter-spacing:1.5px;margin-top:6px;display:none}
+#ld-eb.on{display:block}
+#ld-includes{background:rgba(200,168,75,.03);border:1px solid rgba(200,168,75,.1);padding:16px;margin-bottom:20px;position:relative;z-index:2}
+#ld-inc-title{font-size:7px;letter-spacing:3px;color:var(--gold);margin-bottom:12px;text-transform:uppercase}
+.inc-row{display:flex;align-items:center;gap:8px;font-size:8px;color:var(--muted);margin-bottom:7px;letter-spacing:.5px}
+.inc-dot{width:3px;height:3px;border-radius:50%;background:var(--gold);flex-shrink:0}
+#btn-confirm{width:100%;font-family:var(--font-u);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--black);background:var(--gold);border:none;padding:16px 24px;border-radius:40px;cursor:none;transition:all .3s;text-decoration:none;display:block;text-align:center;position:relative;z-index:2}
+#btn-confirm:hover{background:#d4b45a;box-shadow:0 0 40px rgba(200,168,75,.3)}
+@media(max-width:768px){#btn-confirm{cursor:auto;min-height:54px}}
+
+/* GLOBE */
+#globe-section{padding:120px 0 160px;background:var(--black);overflow:hidden}
+#globe-stars{position:absolute;inset:0;pointer-events:none}
+#globe-inner{max-width:1400px;margin:0 auto;padding:0 60px;position:relative;z-index:2}
+@media(max-width:768px){#globe-inner{padding:0 20px}}
+#globe-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:56px;flex-wrap:wrap;gap:20px}
+#globe-h2{font-family:var(--font-d);font-size:clamp(40px,4vw,60px);font-weight:300;color:var(--white);margin-bottom:12px}
+#globe-sub{font-size:10px;color:var(--muted);letter-spacing:.5px;line-height:1.8;max-width:400px}
+#currency-sel{display:flex;gap:3px;background:rgba(255,255,255,.02);border:1px solid var(--border);padding:5px}
+.cur-btn{font-family:var(--font-u);font-size:8px;letter-spacing:1.5px;color:var(--muted);background:transparent;border:none;padding:7px 11px;cursor:none;transition:all .2s;border-radius:4px}
+.cur-btn.on{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,168,75,.3)}
+.cur-btn:hover:not(.on){color:var(--white)}
+@media(max-width:768px){.cur-btn{cursor:auto}}
+#globe-layout{display:grid;grid-template-columns:1fr 380px;gap:48px;align-items:start}
+@media(max-width:900px){#globe-layout{grid-template-columns:1fr}}
+#globe-wrap{position:relative;height:520px;display:flex;align-items:center;justify-content:center}
+@media(max-width:768px){#globe-wrap{height:400px}}
+#globe-container{width:100%;height:100%}
+#dest-list{display:flex;flex-direction:column;gap:2px;max-height:520px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(200,168,75,.2) transparent}
+.dest-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid transparent;cursor:none;transition:all .25s}
+@media(max-width:768px){.dest-row{cursor:auto}}
+.dest-row:hover,.dest-row.hi{background:var(--gold-dim);border-color:rgba(200,168,75,.15)}
+.dest-city{font-family:var(--font-d);font-size:20px;font-weight:300;color:var(--white)}
+.dest-country{font-size:7px;letter-spacing:2px;color:var(--muted);margin-top:2px}
+.dest-right{text-align:right}
+.dest-cost{font-family:var(--font-d);font-size:18px;color:var(--gold);font-weight:300}
+.dest-members{font-size:7px;color:var(--muted);letter-spacing:1px;margin-top:2px}
+.dest-stars{color:var(--gold);font-size:9px;margin-top:3px}
+#dest-panel{position:fixed;right:-420px;top:0;width:420px;height:100vh;background:#090912;border-left:1px solid rgba(200,168,75,.15);z-index:2000;padding:60px 36px;overflow-y:auto;transition:right .5s cubic-bezier(.16,1,.3,1)}
+#dest-panel.open{right:0}
+@media(max-width:768px){#dest-panel{width:100vw;right:-100vw}}
+#dp-close{position:absolute;top:20px;right:20px;background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--font-u);font-size:9px;padding:7px 12px;cursor:none;transition:all .2s;border-radius:4px;letter-spacing:1px}
+#dp-close:hover{color:var(--gold);border-color:var(--gold)}
+@media(max-width:768px){#dp-close{cursor:auto}}
+#dp-city{font-family:var(--font-d);font-size:40px;font-weight:300;color:var(--white);margin:16px 0 2px}
+#dp-country{font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:28px}
+.dp-stat{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)}
+.dp-stat-lbl{font-size:8px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.dp-stat-val{font-family:var(--font-d);font-size:20px;color:var(--white);font-weight:300}
+#globe-tooltip{position:fixed;background:#0e0e18;border:1px solid rgba(200,168,75,.2);padding:14px 18px;pointer-events:none;z-index:1500;opacity:0;transition:opacity .15s;min-width:160px}
+#tt-city{font-family:var(--font-d);font-size:22px;color:var(--white);font-weight:300}
+#tt-members{font-size:8px;color:var(--gold);letter-spacing:1.5px;margin-top:3px}
+#tt-info{font-size:8px;color:var(--muted);letter-spacing:.5px;margin-top:5px}
+
+/* PLATFORM */
+#platform{padding:140px 80px;background:var(--surface)}
+@media(max-width:768px){#platform{padding:100px 20px}}
+#platform-inner{max-width:1100px;margin:0 auto}
+#platform-h2{font-family:var(--font-d);font-size:clamp(44px,5vw,72px);font-weight:300;color:var(--white);margin-bottom:16px}
+#platform-sub{font-size:11px;color:var(--muted);line-height:2;max-width:560px;margin-bottom:80px}
+#platform-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:48px}
+@media(max-width:768px){#platform-cards{grid-template-columns:1fr}}
+.pc{background:var(--black);padding:44px 36px;perspective:600px;cursor:none}
+@media(max-width:768px){.pc{cursor:auto}}
+.pc-inner{transform-style:preserve-3d;transition:transform .6s}
+.pc.flip .pc-inner{animation:cardFlip .6s ease forwards}
+@keyframes cardFlip{0%{transform:rotateX(90deg);opacity:0}100%{transform:rotateX(0deg);opacity:1}}
+.pc-icon{font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:18px}
+.pc-title{font-family:var(--font-d);font-size:26px;font-weight:300;color:var(--white);margin-bottom:10px}
+.pc-desc{font-size:10px;color:var(--muted);line-height:1.9}
+.pc-badge{display:inline-block;font-size:7px;letter-spacing:2px;padding:3px 9px;background:rgba(61,220,132,.06);color:rgba(61,220,132,.5);border:1px solid rgba(61,220,132,.15);border-radius:20px;margin-top:14px}
+#platform-cert{text-align:center;font-size:10px;letter-spacing:4px;color:var(--gold)}
+
+/* CTA */
+#cta{padding:160px 80px;text-align:center;position:relative;overflow:hidden}
+@media(max-width:768px){#cta{padding:100px 20px}}
+#cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(200,168,75,.05) 0%,transparent 65%);pointer-events:none;transition:opacity .5s}
+#cta-eyebrow{font-size:9px;letter-spacing:4px;color:var(--gold);margin-bottom:40px;position:relative;z-index:1}
+#cta-price{font-family:var(--font-d);font-size:clamp(80px,10vw,120px);font-weight:300;color:var(--gold);line-height:1;display:block;position:relative;z-index:1}
+#cta-retail{font-family:var(--font-d);font-size:22px;color:var(--muted);text-decoration:line-through;display:block;margin-bottom:24px;position:relative;z-index:1}
+#cta-h2{font-family:var(--font-d);font-size:clamp(28px,3vw,44px);font-weight:300;color:var(--white);margin-bottom:12px;position:relative;z-index:1}
+#cta-sub2{font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:48px;position:relative;z-index:1}
+#cta-list{list-style:none;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:52px;position:relative;z-index:1}
+#cta-list li{font-size:10px;letter-spacing:1.5px;color:var(--muted);display:flex;align-items:center;gap:10px}
+#cta-list li::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--gold);flex-shrink:0}
+#btn-cta-wrap{position:relative;z-index:1;margin-bottom:24px}
+#btn-cta{font-family:var(--font-u);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--black);background:var(--gold);border:none;padding:20px 52px;border-radius:40px;cursor:none;text-decoration:none;display:inline-block;transition:all .3s;min-height:54px;display:inline-flex;align-items:center}
+#btn-cta:hover{background:#d4b45a;box-shadow:0 0 60px rgba(200,168,75,.3);transform:translateY(-2px)}
+@media(max-width:768px){#btn-cta{cursor:auto}}
+#cta-note{font-size:9px;letter-spacing:1.5px;color:var(--muted);position:relative;z-index:1;margin-bottom:60px}
+#cta-cd{display:flex;gap:24px;justify-content:center;position:relative;z-index:1}
+
+/* FOOTER */
+footer{padding:40px 80px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+@media(max-width:768px){footer{padding:32px 20px;flex-direction:column;text-align:center;padding-bottom:80px}}
+.footer-brand{font-family:var(--font-d);font-size:18px;letter-spacing:6px;color:var(--white)}
+.footer-copy{font-size:8px;letter-spacing:2px;color:var(--muted)}
+
+/* UTILS */
+.sep{width:48px;height:1px;background:var(--gold);margin:36px 0}
+section{position:relative}
 </style>
 </head>
-
 <body>
-<!-- ==========================================
-     CURSOR
-     ========================================== -->
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
 
-<!-- ==========================================
-     SECTION 1 — HERO
-     ========================================== -->
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur-r"></div>
+
+<!-- NAV MOBILE -->
+<nav id="nav-mobile">
+  <a href="#mission">Mission</a>
+  <a href="#product">Équipement</a>
+  <a href="#loadout">Loadout</a>
+  <a href="#globe-section">Destinations</a>
+</nav>
+
+<!-- SECTION 1 — HERO -->
 <section id="hero">
-  <video id="hero-video" autoplay muted loop playsinline>
+  <video id="hero-video" autoplay muted loop playsinline preload="auto">
     <source src="https://res.cloudinary.com/drxiod7my/video/upload/v1777719855/video_exodus_w7rcpv.mp4" type="video/mp4">
   </video>
   <div id="hero-overlay"></div>
   <div id="hero-grid"></div>
+  <canvas id="hero-particles"></canvas>
 
-  <span class="hero-side-text" id="hero-left-text">MOVE TO BUILD</span>
-  <span class="hero-side-text" id="hero-right-text">AUTUMN 2026</span>
+  <span class="hero-side" id="hero-left">MOVE TO BUILD</span>
+  <span class="hero-side" id="hero-right">AUTUMN 2026</span>
 
   <div id="hero-content">
     <span id="hero-logo">REVENTURY<sup>®</sup></span>
-
-    <h1 id="hero-title" class="reveal">Le monde est votre bureau.</h1>
-
-    <p id="hero-subtitle" class="reveal reveal-delay-1">
-      Certains construisent depuis un bureau fixe.<br>
-      Vous, vous construisez en mouvement.
-    </p>
-
-    <div id="countdown" class="reveal reveal-delay-2">
-      <div class="countdown-unit">
-        <span class="countdown-value" id="cd-days">000</span>
-        <span class="countdown-label">JOURS</span>
-      </div>
-      <div class="countdown-sep">·</div>
-      <div class="countdown-unit">
-        <span class="countdown-value" id="cd-hours">00</span>
-        <span class="countdown-label">HEURES</span>
-      </div>
-      <div class="countdown-sep">·</div>
-      <div class="countdown-unit">
-        <span class="countdown-value" id="cd-mins">00</span>
-        <span class="countdown-label">MIN</span>
-      </div>
-      <div class="countdown-sep">·</div>
-      <div class="countdown-unit">
-        <span class="countdown-value" id="cd-secs">00</span>
-        <span class="countdown-label">SEC</span>
-      </div>
+    <h1 id="hero-h1"></h1>
+    <span id="hero-line"></span>
+    <p id="hero-sub">Vous ne travaillez pas depuis chez vous. Vous construisez depuis partout.<br>Dubaï, Bali, Tokyo, Lisbonne. L'Exodus 40L est l'infrastructure<br>de ceux qui ne s'arrêtent pas.</p>
+    <div id="hero-cd">
+      <div class="cd-u"><span class="cd-v" id="cd-d">000</span><span class="cd-l">JOURS</span></div>
+      <div class="cd-sep">·</div>
+      <div class="cd-u"><span class="cd-v" id="cd-h">00</span><span class="cd-l">HEURES</span></div>
+      <div class="cd-sep">·</div>
+      <div class="cd-u"><span class="cd-v" id="cd-m">00</span><span class="cd-l">MIN</span></div>
+      <div class="cd-sep">·</div>
+      <div class="cd-u"><span class="cd-v" id="cd-s">00</span><span class="cd-l">SEC</span></div>
     </div>
-
-    <div id="hero-ctas" class="reveal reveal-delay-3">
-      <a href="#mission" class="btn-gold">Voir la mission</a>
-      <a href="#product" class="btn-ghost">Découvrir l'Exodus</a>
+    <div id="hero-ctas">
+      <a href="https://www.kickstarter.com/projects/1918925339/exodus-the-modular-performance-backpack" target="_blank" class="btn-pill btn-pill-gold">Rejoindre les fondateurs</a>
+      <a href="#product" class="btn-pill btn-pill-ghost">Voir l'Exodus</a>
     </div>
   </div>
 
-  <div id="scroll-indicator">
+  <div id="scroll-ind">
     <div id="scroll-line"></div>
-    <span id="scroll-text">SCROLL</span>
+    <span id="scroll-txt">SCROLL</span>
   </div>
 </section>
 
-<!-- ==========================================
-     SECTION 2 — MISSION
-     ========================================== -->
+<!-- SECTION 2 — MISSION -->
 <section id="mission">
-  <div class="eyebrow reveal">01 — Briefing</div>
-
-  <h2 id="mission-title" class="section-title reveal reveal-delay-1">
-    Vous n'êtes pas<br>un touriste.
-  </h2>
-
-  <p id="mission-text" class="reveal reveal-delay-2">
-    Vous êtes un bâtisseur. Trader, e-commerçant, vidéaste, entrepreneur — vous construisez activement de la richesse en mouvement. Dubaï, Bali, Tokyo, Lisbonne. Votre bureau change. Votre standard, non.
-  </p>
-
-  <div class="gold-line reveal reveal-delay-3"></div>
-
-  <p id="mission-text2" class="reveal reveal-delay-3">
-    L'Exodus n'est pas un sac. C'est votre infrastructure mobile. Le seul équipement dont vous avez besoin pour opérer depuis n'importe où dans le monde.
-  </p>
-
-  <blockquote id="mission-quote" class="reveal reveal-delay-4">
-    "The only one<br>you need."
-  </blockquote>
+  <div class="eyebrow" id="mission-eyebrow"></div>
+  <div class="mission-wrap">
+    <h2 id="mission-h2">Vous n'êtes pas<br>un touriste.</h2>
+    <div class="sep" id="mission-sep" style="width:0"></div>
+    <p class="mission-p" id="mission-p1">Vous êtes trader, e-commerçant, vidéaste ou entrepreneur. Vous construisez activement de la richesse en mouvement. Votre bureau change. Votre standard, non.</p>
+    <p class="mission-p" id="mission-p2" style="margin-top:24px">L'Exodus 40L n'est pas un sac de voyage. C'est votre infrastructure mobile. Modulable, silencieux, premium. Pensé pour ceux qui optimisent chaque gramme et chaque geste.</p>
+    <blockquote id="mission-quote">"The only one you need."</blockquote>
+  </div>
 </section>
 
-<!-- ==========================================
-     SECTION 3 — GLOBE
-     ========================================== -->
-<section id="globe-section">
-  <div id="globe-inner">
-    <div id="globe-header" class="reveal">
-      <div id="globe-title-wrap">
-        <div class="eyebrow">02 — Territoire</div>
-        <h2 id="globe-title" class="section-title">Où les bâtisseurs opèrent.</h2>
-      </div>
-      <div id="currency-selector">
-        <button class="currency-btn active" data-currency="EUR">EUR €</button>
-        <button class="currency-btn" data-currency="USD">USD $</button>
-        <button class="currency-btn" data-currency="GBP">GBP £</button>
-        <button class="currency-btn" data-currency="CHF">CHF ₣</button>
-        <button class="currency-btn" data-currency="AED">AED د.إ</button>
+<!-- SECTION 3 — PRODUIT -->
+<section id="product">
+  <div id="product-header">
+    <div class="eyebrow">02 — L'équipement</div>
+    <h2 id="product-h2">L'infrastructure mobile.</h2>
+    <p id="product-sub">UN SAC. QUATRE MODULES. UN SYSTÈME.</p>
+  </div>
+
+  <div id="product-split">
+    <!-- Sticky left -->
+    <div id="product-left">
+      <div id="bag-wrap">
+        <div id="bag-glow"></div>
+        <img id="bag-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/exodus_bag.png" alt="Exodus Bag">
+        <!-- Hotspots -->
+        <div class="hs" id="hs1" style="top:22%;left:12%">
+          <div class="hs-dot"></div>
+          <div class="hs-line" style="width:50px;top:4px;left:10px"></div>
+          <div class="hs-lbl" style="top:-12px;left:62px">MALLETTE PC</div>
+        </div>
+        <div class="hs" id="hs2" style="top:16%;right:14%">
+          <div class="hs-dot"></div>
+          <div class="hs-line" style="width:50px;top:4px;right:10px;left:auto;transform-origin:right"></div>
+          <div class="hs-lbl" style="top:-12px;right:62px;left:auto">MODULE CAMÉRA</div>
+        </div>
+        <div class="hs" id="hs3" style="bottom:32%;left:10%">
+          <div class="hs-dot"></div>
+          <div class="hs-line" style="width:50px;top:4px;left:10px"></div>
+          <div class="hs-lbl" style="top:-12px;left:62px">TROUSSE</div>
+        </div>
+        <div class="hs" id="hs4" style="bottom:26%;right:12%">
+          <div class="hs-dot"></div>
+          <div class="hs-line" style="width:50px;top:4px;right:10px;left:auto"></div>
+          <div class="hs-lbl" style="top:-12px;right:62px;left:auto">POCHETTE</div>
+        </div>
       </div>
     </div>
 
+    <!-- Scroll right -->
+    <div id="product-right">
+      <div class="prod-block" id="pb1">
+        <div class="prod-block-title" style="font-size:72px;color:var(--gold)">UN SAC</div>
+        <p class="prod-block-desc">40 litres. Un chassis central silencieux qui porte tout sans trahir son contenu.</p>
+        <div id="prod-specs">
+          <div><span class="spec-v">40</span><span class="spec-l">LITRES</span></div>
+          <div style="margin-left:24px"><span class="spec-v">4</span><span class="spec-l">MODULES</span></div>
+          <div style="margin-left:24px"><span class="spec-v">1</span><span class="spec-l">SYSTÈME</span></div>
+        </div>
+      </div>
+      <div class="prod-block" id="pb2">
+        <div class="prod-block-title">QUATRE<br>MODULES</div>
+        <p class="prod-block-desc">Chaque module répond à une mission précise. Aucun gramme superflu. Aucune fonction qui manque.</p>
+      </div>
+      <div class="prod-block" id="pb3">
+        <div class="prod-block-title">UN RÉSEAU</div>
+        <p class="prod-block-desc">Chaque Exodus est une clé d'accès. Réseau mondial. Destinations certifiées. Communauté active.</p>
+        <div id="modules-cards">
+          <div class="mc" id="mc1">
+            <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/malette.png" alt="Mallette">
+            <div class="mc-tag">MODULE 01</div>
+            <div class="mc-name">Mallette PC</div>
+            <div class="mc-price">+59€ — Bureau mobile</div>
+          </div>
+          <div class="mc" id="mc2">
+            <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/module_camera.png" alt="Caméra">
+            <div class="mc-tag">MODULE 02</div>
+            <div class="mc-name">Module Caméra</div>
+            <div class="mc-price">+39€ — Créateur</div>
+          </div>
+          <div class="mc" id="mc3">
+            <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/trousse.png" alt="Trousse">
+            <div class="mc-tag">MODULE 03</div>
+            <div class="mc-name">Trousse Toilette</div>
+            <div class="mc-price">+35€ — Mobilité</div>
+          </div>
+          <div class="mc" id="mc4">
+            <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/pochette.png" alt="Pochette">
+            <div class="mc-tag">MODULE 04</div>
+            <div class="mc-name">Pochette Rapide</div>
+            <div class="mc-price">+29€ — Accès rapide</div>
+          </div>
+        </div>
+      </div>
+      <div class="prod-block" id="pb4">
+        <div class="prod-block-title">UNE MISSION</div>
+        <p class="prod-block-desc">Opérer sans contrainte. Construire depuis n'importe où. L'Exodus est l'équipement de ceux qui refusent de choisir entre ambition et mobilité.</p>
+        <a href="#loadout" class="btn-pill btn-pill-gold" style="margin-top:32px;cursor:none">Composer mon Exodus</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4 — LOADOUT -->
+<section id="loadout">
+  <div id="loadout-boot">
+    <div id="loadout-eyebrow">03 — Configuration</div>
+    <h2 id="loadout-h2">Composez votre mission.</h2>
+  </div>
+
+  <div id="loadout-layout">
+    <!-- Left -->
+    <div class="hud-panel" id="loadout-left">
+      <div class="hc hc-tl"></div><div class="hc hc-tr"></div><div class="hc hc-bl"></div><div class="hc hc-br"></div>
+      <div id="loadout-left-title">CHOISISSEZ VOTRE ÉQUIPEMENT</div>
+
+      <div class="lslot mandatory" data-mod="bag" data-price="0">
+        <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/exodus_bag.png" alt="">
+        <div class="lslot-info"><span class="lslot-name">SAC EXODUS 40L</span><span class="lslot-role">Fondation</span></div>
+        <span class="lslot-price">INCLUS</span>
+        <span class="lbadge on">ÉQUIPÉ</span>
+      </div>
+      <div class="lslot" data-mod="malette" data-price="59">
+        <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/malette.png" alt="">
+        <div class="lslot-info"><span class="lslot-name">MALLETTE PC</span><span class="lslot-role">Bureau mobile</span></div>
+        <span class="lslot-price">+59€</span>
+        <span class="lbadge">ÉQUIPÉ</span>
+      </div>
+      <div class="lslot" data-mod="camera" data-price="39">
+        <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/module_camera.png" alt="">
+        <div class="lslot-info"><span class="lslot-name">MODULE CAMÉRA</span><span class="lslot-role">Créateur</span></div>
+        <span class="lslot-price">+39€</span>
+        <span class="lbadge">ÉQUIPÉ</span>
+      </div>
+      <div class="lslot" data-mod="trousse" data-price="35">
+        <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/trousse.png" alt="">
+        <div class="lslot-info"><span class="lslot-name">TROUSSE TOILETTE</span><span class="lslot-role">Mobilité</span></div>
+        <span class="lslot-price">+35€</span>
+        <span class="lbadge">ÉQUIPÉ</span>
+      </div>
+      <div class="lslot" data-mod="pochette" data-price="29">
+        <img src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/pochette.png" alt="">
+        <div class="lslot-info"><span class="lslot-name">POCHETTE RAPIDE</span><span class="lslot-role">Accès rapide</span></div>
+        <span class="lslot-price">+29€</span>
+        <span class="lbadge">ÉQUIPÉ</span>
+      </div>
+
+      <div id="ld-progress-wrap">
+        <div id="ld-progress-lbl"><span>LOADOUT</span><span id="ld-pct">20%</span></div>
+        <div id="ld-progress-bar"><div id="ld-progress-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Center -->
+    <div id="loadout-center">
+      <canvas id="char-canvas"></canvas>
+      <canvas id="char-particles"></canvas>
+      <div class="char-hc" id="chc-tl"></div><div class="char-hc" id="chc-tr"></div>
+      <div class="char-hc" id="chc-bl"></div><div class="char-hc" id="chc-br"></div>
+      <span id="char-lbl">DRAG TO ROTATE</span>
+    </div>
+
+    <!-- Right -->
+    <div class="hud-panel" id="loadout-right">
+      <div class="hc hc-tl"></div><div class="hc hc-tr"></div><div class="hc hc-bl"></div><div class="hc hc-br"></div>
+      <div id="ld-right-title">VOTRE LOADOUT</div>
+      <div id="ld-items">
+        <div class="ld-row"><span class="ld-row-name">Sac Exodus 40L</span><span class="ld-row-price">100€</span></div>
+      </div>
+      <div id="ld-total-wrap">
+        <span id="ld-total-lbl">TOTAL ESTIMÉ</span>
+        <div id="ld-total">100€</div>
+        <div id="ld-eb">EARLY BIRD — -14% — PACK COMPLET</div>
+      </div>
+      <div id="ld-includes">
+        <div id="ld-inc-title">ACCÈS INCLUS</div>
+        <div class="inc-row"><div class="inc-dot"></div>Plateforme membre privée</div>
+        <div class="inc-row"><div class="inc-dot"></div>Réseau entrepreneurs mondial</div>
+        <div class="inc-row"><div class="inc-dot"></div>Gadgets voyage exclusifs</div>
+        <div class="inc-row"><div class="inc-dot"></div>Reventury Houses 2026</div>
+      </div>
+      <a href="https://www.kickstarter.com/projects/1918925339/exodus-the-modular-performance-backpack" target="_blank" id="btn-confirm">CONFIRMER LE LOADOUT →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5 — GLOBE -->
+<section id="globe-section">
+  <canvas id="globe-stars"></canvas>
+  <div id="globe-inner">
+    <div id="globe-head">
+      <div>
+        <div class="eyebrow">04 — Territoire</div>
+        <h2 id="globe-h2">Choisissez votre<br>prochaine base.</h2>
+        <p id="globe-sub">Les entrepreneurs Reventury opèrent depuis les meilleures destinations du monde. Explorez, comparez, décidez.</p>
+      </div>
+      <div>
+        <div style="margin-bottom:12px;font-size:8px;letter-spacing:2px;color:var(--muted)">10 DESTINATIONS SÉLECTIONNÉES</div>
+        <div id="currency-sel">
+          <button class="cur-btn on" data-c="EUR">EUR €</button>
+          <button class="cur-btn" data-c="USD">USD $</button>
+          <button class="cur-btn" data-c="GBP">GBP £</button>
+          <button class="cur-btn" data-c="CHF">CHF ₣</button>
+          <button class="cur-btn" data-c="AED">AED د.إ</button>
+        </div>
+      </div>
+    </div>
     <div id="globe-layout">
-      <div id="globe-canvas-wrap" class="reveal">
-        <canvas id="globe-canvas" width="640" height="520"></canvas>
-      </div>
-      <div id="globe-dest-list" class="reveal reveal-delay-1">
-        <!-- Populated by JS -->
-      </div>
+      <div id="globe-wrap"><div id="globe-container"></div></div>
+      <div id="dest-list"></div>
     </div>
   </div>
 </section>
 
 <!-- Globe tooltip -->
 <div id="globe-tooltip">
-  <div class="tooltip-city" id="tt-city"></div>
-  <div class="tooltip-members" id="tt-members"></div>
-  <div class="tooltip-cost" id="tt-cost"></div>
+  <div id="tt-city"></div>
+  <div id="tt-members"></div>
+  <div id="tt-info"></div>
 </div>
 
 <!-- Destination panel -->
 <div id="dest-panel">
-  <button id="dest-panel-close">✕ FERMER</button>
-  <div id="dest-panel-city"></div>
-  <div id="dest-panel-country"></div>
-  <div id="dest-panel-stats"></div>
+  <button id="dp-close">✕ FERMER</button>
+  <div id="dp-city"></div>
+  <div id="dp-country"></div>
+  <div id="dp-stats"></div>
 </div>
 
-<!-- ==========================================
-     SECTION 4 — STATS
-     ========================================== -->
-<section id="stats">
-  <div id="stats-inner">
-    <div class="stat-item reveal">
-      <span class="stat-number"><span class="count-up" data-target="47">0</span></span>
-      <span class="stat-label">PAYS COUVERTS</span>
-    </div>
-    <div class="stat-divider reveal reveal-delay-1"></div>
-    <div class="stat-item reveal reveal-delay-2">
-      <span class="stat-number"><span class="count-up" data-target="40">0</span><span class="stat-unit">L</span></span>
-      <span class="stat-label">CAPACITÉ EXODUS</span>
-    </div>
-    <div class="stat-divider reveal reveal-delay-3"></div>
-    <div class="stat-item reveal reveal-delay-4">
-      <span class="stat-number"><span class="count-up" data-target="189">0</span><span class="stat-unit">€</span></span>
-      <span class="stat-label">PRIX FONDATEURS</span>
-    </div>
-  </div>
-</section>
-
-<!-- ==========================================
-     SECTION 5 — PRODUIT
-     ========================================== -->
-<section id="product">
-  <div id="product-split">
-    <div id="product-visual">
-      <img
-        id="product-bag-img"
-        src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/exodus_bag.png"
-        alt="Exodus Bag"
-      >
-
-      <!-- Hotspot 1 — Mallette -->
-      <div class="hotspot" id="hs-malette" style="top:30%;left:18%;">
-        <div class="hotspot-dot"></div>
-        <div class="hotspot-line" style="width:60px;top:4px;left:10px;"></div>
-        <div class="hotspot-label" style="top:-14px;left:72px;">MALLETTE PC</div>
-      </div>
-
-      <!-- Hotspot 2 — Caméra -->
-      <div class="hotspot" id="hs-camera" style="top:20%;right:20%;">
-        <div class="hotspot-dot"></div>
-        <div class="hotspot-line" style="width:60px;top:4px;right:10px;left:auto;transform-origin:right;"></div>
-        <div class="hotspot-label" style="top:-14px;right:72px;left:auto;">MODULE CAMÉRA</div>
-      </div>
-
-      <!-- Hotspot 3 — Trousse -->
-      <div class="hotspot" id="hs-trousse" style="bottom:35%;left:14%;">
-        <div class="hotspot-dot"></div>
-        <div class="hotspot-line" style="width:60px;top:4px;left:10px;"></div>
-        <div class="hotspot-label" style="top:-14px;left:72px;">TROUSSE TOILETTE</div>
-      </div>
-
-      <!-- Hotspot 4 — Pochette -->
-      <div class="hotspot" id="hs-pochette" style="bottom:28%;right:18%;">
-        <div class="hotspot-dot"></div>
-        <div class="hotspot-line" style="width:60px;top:4px;right:10px;left:auto;"></div>
-        <div class="hotspot-label" style="top:-14px;right:72px;left:auto;">POCHETTE RAPIDE</div>
-      </div>
-    </div>
-
-    <div id="product-info">
-      <div class="eyebrow reveal">03 — L'équipement</div>
-
-      <h2 id="product-title" class="section-title reveal reveal-delay-1">
-        Conçu pour ceux<br>qui ne s'arrêtent pas.
-      </h2>
-
-      <div id="product-specs" class="reveal reveal-delay-2">
-        <div class="spec-item">
-          <span class="spec-value">40</span>
-          <span class="spec-label">LITRES</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-value">4</span>
-          <span class="spec-label">MODULES</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-value">1</span>
-          <span class="spec-label">SAC</span>
-        </div>
-      </div>
-
-      <p id="product-desc" class="reveal reveal-delay-3">
-        L'Exodus est construit autour d'un système modulaire. Chaque module est conçu pour une mission précise — bureau mobile, création, mobilité, accès rapide. Ensemble, ils forment l'infrastructure parfaite pour l'entrepreneur qui opère depuis n'importe où.
-      </p>
-
-      <a href="#loadout" class="btn-gold reveal reveal-delay-4">Configurer mon Exodus</a>
-    </div>
-  </div>
-
-  <!-- Modules grid -->
-  <div id="modules-grid">
-    <div class="module-card reveal">
-      <img class="module-card-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/malette.png" alt="Mallette PC">
-      <div class="module-card-name">Module 01</div>
-      <div class="module-card-role">Mallette PC</div>
-      <div class="module-card-price">+59€</div>
-    </div>
-    <div class="module-card reveal reveal-delay-1">
-      <img class="module-card-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/module_camera.png" alt="Module Caméra">
-      <div class="module-card-name">Module 02</div>
-      <div class="module-card-role">Module Caméra</div>
-      <div class="module-card-price">+39€</div>
-    </div>
-    <div class="module-card reveal reveal-delay-2">
-      <img class="module-card-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/trousse.png" alt="Trousse Toilette">
-      <div class="module-card-name">Module 03</div>
-      <div class="module-card-role">Trousse Toilette</div>
-      <div class="module-card-price">+35€</div>
-    </div>
-    <div class="module-card reveal reveal-delay-3">
-      <img class="module-card-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/pochette.png" alt="Pochette Rapide">
-      <div class="module-card-name">Module 04</div>
-      <div class="module-card-role">Pochette Rapide</div>
-      <div class="module-card-price">+29€</div>
-    </div>
-  </div>
-</section>
-
-<!-- ==========================================
-     SECTION 6 — LOADOUT
-     ========================================== -->
-<section id="loadout">
-  <div id="loadout-header">
-    <div class="eyebrow reveal">04 — Configuration</div>
-    <h2 id="loadout-title" class="section-title reveal reveal-delay-1">Équipez-vous.</h2>
-    <p id="loadout-subtitle" class="reveal reveal-delay-2">SÉLECTIONNEZ VOTRE LOADOUT — CHAQUE MODULE EST UNE DÉCISION</p>
-  </div>
-
-  <div id="loadout-layout">
-    <!-- LEFT: Selection panel -->
-    <div id="loadout-left" class="hud-corners">
-      <div class="loadout-panel-corner lpc-tl"></div>
-      <div class="loadout-panel-corner lpc-tr"></div>
-      <div class="loadout-panel-corner lpc-bl"></div>
-      <div class="loadout-panel-corner lpc-br"></div>
-
-      <div id="loadout-panel-title">Choisissez votre équipement</div>
-
-      <div class="loadout-slot mandatory" id="slot-bag" data-module="bag" data-price="0">
-        <img class="loadout-slot-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/exodus_bag.png" alt="Sac Exodus">
-        <div class="loadout-slot-info">
-          <span class="loadout-slot-name">Sac Exodus 40L</span>
-          <span class="loadout-slot-role">Fondation</span>
-        </div>
-        <span class="loadout-slot-price">INCLUS</span>
-        <span class="loadout-badge equipped">ÉQUIPÉ</span>
-      </div>
-
-      <div class="loadout-slot" id="slot-malette" data-module="malette" data-price="59">
-        <img class="loadout-slot-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/malette.png" alt="Mallette PC">
-        <div class="loadout-slot-info">
-          <span class="loadout-slot-name">Mallette PC</span>
-          <span class="loadout-slot-role">Bureau mobile</span>
-        </div>
-        <span class="loadout-slot-price">+59€</span>
-        <span class="loadout-badge">ÉQUIPÉ</span>
-      </div>
-
-      <div class="loadout-slot" id="slot-camera" data-module="camera" data-price="39">
-        <img class="loadout-slot-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/module_camera.png" alt="Module Caméra">
-        <div class="loadout-slot-info">
-          <span class="loadout-slot-name">Module Caméra</span>
-          <span class="loadout-slot-role">Créateur</span>
-        </div>
-        <span class="loadout-slot-price">+39€</span>
-        <span class="loadout-badge">ÉQUIPÉ</span>
-      </div>
-
-      <div class="loadout-slot" id="slot-trousse" data-module="trousse" data-price="35">
-        <img class="loadout-slot-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/trousse.png" alt="Trousse Toilette">
-        <div class="loadout-slot-info">
-          <span class="loadout-slot-name">Trousse Toilette</span>
-          <span class="loadout-slot-role">Mobilité</span>
-        </div>
-        <span class="loadout-slot-price">+35€</span>
-        <span class="loadout-badge">ÉQUIPÉ</span>
-      </div>
-
-      <div class="loadout-slot" id="slot-pochette" data-module="pochette" data-price="29">
-        <img class="loadout-slot-img" src="https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/pochette.png" alt="Pochette Rapide">
-        <div class="loadout-slot-info">
-          <span class="loadout-slot-name">Pochette Rapide</span>
-          <span class="loadout-slot-role">Accès rapide</span>
-        </div>
-        <span class="loadout-slot-price">+29€</span>
-        <span class="loadout-badge">ÉQUIPÉ</span>
-      </div>
-
-      <div id="loadout-progress-wrap">
-        <div id="loadout-progress-label">
-          <span>LOADOUT</span>
-          <span id="loadout-progress-pct">20%</span>
-        </div>
-        <div id="loadout-progress-bar">
-          <div id="loadout-progress-fill"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CENTER: Character 3D -->
-    <div id="loadout-center">
-      <canvas id="character-canvas"></canvas>
-      <canvas id="character-particles" width="600" height="700"></canvas>
-      <div id="char-hud-tl"></div>
-      <div id="char-hud-tr"></div>
-      <div id="char-hud-bl"></div>
-      <div id="char-hud-br"></div>
-      <span id="char-label">DRAG TO ROTATE</span>
-    </div>
-
-    <!-- RIGHT: Summary -->
-    <div id="loadout-right" class="hud-corners">
-      <div class="loadout-panel-corner lpc-tl"></div>
-      <div class="loadout-panel-corner lpc-tr"></div>
-      <div class="loadout-panel-corner lpc-bl"></div>
-      <div class="loadout-panel-corner lpc-br"></div>
-
-      <div id="loadout-summary-title">Votre Loadout</div>
-
-      <div id="loadout-items-list">
-        <div class="loadout-item-row">
-          <span class="loadout-item-name">Sac Exodus 40L</span>
-          <span class="loadout-item-price">Inclus</span>
-        </div>
-      </div>
-
-      <div id="loadout-total-wrap">
-        <span id="loadout-total-label">TOTAL ESTIMÉ</span>
-        <div id="loadout-total-price">0€</div>
-        <div id="loadout-early-bird">EARLY BIRD — -14% — PACK COMPLET</div>
-      </div>
-
-      <div id="loadout-includes">
-        <div id="loadout-includes-title">Accès inclus</div>
-        <div class="include-item"><div class="include-dot"></div>Plateforme privée Reventury</div>
-        <div class="include-item"><div class="include-dot"></div>Réseau mondial d'entrepreneurs</div>
-        <div class="include-item"><div class="include-dot"></div>Logements certifiés Reventury</div>
-        <div class="include-item"><div class="include-dot"></div>Gadgets &amp; équipements voyage</div>
-        <div class="include-item"><div class="include-dot"></div>Reventury Houses 2026 — bientôt</div>
-      </div>
-
-      <a href="https://www.kickstarter.com/projects/1918925339/exodus-the-modular-performance-backpack" target="_blank" id="btn-loadout-confirm">
-        Confirmer le loadout →
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ==========================================
-     SECTION 7 — PLATFORM
-     ========================================== -->
+<!-- SECTION 6 — PLATEFORME -->
 <section id="platform">
   <div id="platform-inner">
-    <div class="eyebrow reveal">05 — Le club</div>
-
-    <h2 id="platform-title" class="section-title reveal reveal-delay-1">Le sac est la clé.</h2>
-
-    <p id="platform-subtitle" class="reveal reveal-delay-2">
-      Chaque acheteur de l'Exodus rejoint automatiquement un réseau privé d'entrepreneurs qui construisent en mouvement.
-    </p>
-
+    <div class="eyebrow">05 — Au-delà du sac</div>
+    <h2 id="platform-h2">Le sac est la clé.</h2>
+    <p id="platform-sub">Chaque acheteur de l'Exodus rejoint automatiquement un réseau privé d'entrepreneurs qui construisent en mouvement.</p>
     <div id="platform-cards">
-      <div class="platform-card reveal">
-        <div class="platform-card-icon">// 01</div>
-        <div class="platform-card-title">Réseau mondial</div>
-        <div class="platform-card-desc">4 700+ entrepreneurs dans 47 pays. Partage de ressources, d'opportunités, d'espaces de travail. Le réseau qui fait la différence quand vous changez de fuseau horaire.</div>
+      <div class="pc">
+        <div class="pc-icon">// 01</div>
+        <div class="pc-title">Réseau mondial</div>
+        <div class="pc-desc">Traders, e-commerçants, vidéastes. Connectez-vous avec des pairs qui vous ressemblent dans le monde entier.</div>
       </div>
-      <div class="platform-card reveal reveal-delay-1">
-        <div class="platform-card-icon">// 02</div>
-        <div class="platform-card-title">Logements certifiés</div>
-        <div class="platform-card-desc">Des adresses présélectionnées par notre communauté. Wifi fiable, environnement de travail optimal, proximité des zones stratégiques. Zéro mauvaise surprise.</div>
+      <div class="pc">
+        <div class="pc-icon">// 02</div>
+        <div class="pc-title">Gadgets voyage</div>
+        <div class="pc-desc">Accessoires sélectionnés pour optimiser chaque déplacement. Réductions membres exclusives.</div>
       </div>
-      <div class="platform-card reveal reveal-delay-2">
-        <div class="platform-card-icon">// 03</div>
-        <div class="platform-card-title">Gadgets voyage</div>
-        <div class="platform-card-desc">Sélection rigoureuse d'équipements testés par notre communauté. Hubs USB, câbles blindés, batteries haute capacité, adaptateurs universels. Ce que les pros utilisent vraiment.</div>
+      <div class="pc">
+        <div class="pc-icon">// 03</div>
+        <div class="pc-title">Destinations certifiées</div>
+        <div class="pc-desc">Les meilleures bases pour construire votre business en mouvement. Données vérifiées par la communauté.</div>
       </div>
-      <div class="platform-card reveal reveal-delay-3">
-        <div class="platform-card-icon">// 04</div>
-        <div class="platform-card-title">Reventury Houses 2026</div>
-        <div class="platform-card-desc">Des espaces hybrides — coworking, coliving, networking — conçus par et pour la communauté Reventury. Premiers espaces ouverts à Bangkok, Lisbonne et Dubaï.</div>
-        <span class="platform-card-badge">BIENTÔT</span>
+      <div class="pc" style="opacity:.5">
+        <div class="pc-icon">// 04</div>
+        <div class="pc-title">Reventury Houses</div>
+        <div class="pc-desc">Coworking, salle de sport, calisthenics, fast food clean. Chambres individuelles. 2026.</div>
+        <span class="pc-badge">BIENTÔT</span>
       </div>
     </div>
-
-    <div id="platform-certified" class="reveal">Reventury Certified ✦</div>
+    <div id="platform-cert">Reventury Certified ✦</div>
   </div>
 </section>
 
-<!-- ==========================================
-     SECTION 8 — CTA FINAL
-     ========================================== -->
-<section id="cta-final">
+<!-- SECTION 7 — CTA -->
+<section id="cta">
   <div id="cta-glow"></div>
-
-  <div id="cta-price-wrap" class="reveal">
-    <span id="cta-price">189€</span>
-    <span id="cta-price-retail">219€ retail</span>
-  </div>
-
-  <h2 id="cta-main-title" class="section-title reveal reveal-delay-1">
-    Sac + 4 modules. Accès club à vie.
-  </h2>
-
-  <ul id="cta-list" class="reveal reveal-delay-2">
+  <div id="cta-eyebrow">COLLECTION FONDATEURS — 150 PLACES</div>
+  <span id="cta-price">189€</span>
+  <span id="cta-retail">219€ retail</span>
+  <h2 id="cta-h2">Sac + 4 modules. Accès réseau privé à vie.</h2>
+  <p id="cta-sub2">Prix garanti uniquement pour les 150 premiers membres fondateurs.</p>
+  <ul id="cta-list">
     <li>Livraison septembre 2026</li>
-    <li>Accès plateforme immédiat après financement</li>
-    <li>Prix fondateurs garanti — ne sera plus disponible après la campagne</li>
+    <li>Accès plateforme immédiat</li>
+    <li>Prix fondateurs garanti</li>
   </ul>
-
-  <div id="cta-btn-wrap" class="reveal reveal-delay-3">
-    <a href="https://www.kickstarter.com/projects/1918925339/exodus-the-modular-performance-backpack" target="_blank" id="cta-btn">
-      Rejoindre la liste fondateurs
-    </a>
+  <div id="btn-cta-wrap">
+    <a href="https://www.kickstarter.com/projects/1918925339/exodus-the-modular-performance-backpack" target="_blank" id="btn-cta">Rejoindre la liste Kickstarter</a>
   </div>
-
-  <p id="cta-note" class="reveal reveal-delay-4">
-    Remboursement garanti par Kickstarter si l'objectif n'est pas atteint.
-  </p>
-
-  <div id="cta-countdown" class="reveal reveal-delay-5">
-    <div class="countdown-unit">
-      <span class="countdown-value" id="cd2-days">000</span>
-      <span class="countdown-label">JOURS</span>
-    </div>
-    <div class="countdown-sep">·</div>
-    <div class="countdown-unit">
-      <span class="countdown-value" id="cd2-hours">00</span>
-      <span class="countdown-label">HEURES</span>
-    </div>
-    <div class="countdown-sep">·</div>
-    <div class="countdown-unit">
-      <span class="countdown-value" id="cd2-mins">00</span>
-      <span class="countdown-label">MIN</span>
-    </div>
-    <div class="countdown-sep">·</div>
-    <div class="countdown-unit">
-      <span class="countdown-value" id="cd2-secs">00</span>
-      <span class="countdown-label">SEC</span>
-    </div>
+  <p id="cta-note">Remboursement automatique si objectif non atteint. Kickstarter garantit votre achat à 100%.</p>
+  <div id="cta-cd">
+    <div class="cd-u"><span class="cd-v" id="cd2-d">000</span><span class="cd-l">JOURS</span></div>
+    <div class="cd-sep">·</div>
+    <div class="cd-u"><span class="cd-v" id="cd2-h">00</span><span class="cd-l">HEURES</span></div>
+    <div class="cd-sep">·</div>
+    <div class="cd-u"><span class="cd-v" id="cd2-m">00</span><span class="cd-l">MIN</span></div>
+    <div class="cd-sep">·</div>
+    <div class="cd-u"><span class="cd-v" id="cd2-s">00</span><span class="cd-l">SEC</span></div>
   </div>
 </section>
 
-<!-- ==========================================
-     FOOTER
-     ========================================== -->
 <footer>
   <div class="footer-brand">REVENTURY®</div>
   <div class="footer-copy">© 2026 Reventury — All rights reserved</div>
 </footer>
 
-<!-- Destination data list sidebar (alternative to canvas tooltip) -->
-<style>
-  #globe-dest-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .dest-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 20px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid transparent;
-    cursor: none;
-    transition: all 0.25s;
-  }
-
-  .dest-row:hover, .dest-row.active {
-    background: var(--gold-dim);
-    border-color: rgba(200,168,75,0.2);
-  }
-
-  .dest-row-left { display: flex; flex-direction: column; gap: 4px; }
-  .dest-row-city { font-family: var(--font-display); font-size: 20px; font-weight: 300; color: var(--white); }
-  .dest-row-country { font-family: var(--font-ui); font-size: 8px; letter-spacing: 2px; color: var(--muted); }
-
-  .dest-row-right { text-align: right; }
-  .dest-row-cost { font-family: var(--font-display); font-size: 18px; color: var(--gold); font-weight: 300; }
-  .dest-row-members { font-family: var(--font-ui); font-size: 8px; letter-spacing: 1px; color: var(--muted); margin-top: 2px; }
-  .dest-row-score { color: var(--gold); font-size: 9px; margin-top: 3px; }
-</style>
-
-<!-- ==========================================
-     SCRIPTS
-     ========================================== -->
+<!-- CDNs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://unpkg.com/globe.gl"></script>
 
 <script>
-/* ============================================
-   CURSOR
-   ============================================ */
-const cursor = document.getElementById('cursor');
-const cursorRing = document.getElementById('cursor-ring');
-let mouseX = 0, mouseY = 0;
-let ringX = 0, ringY = 0;
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.normalizeScroll(true);
 
-document.addEventListener('mousemove', e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  cursor.style.left = mouseX + 'px';
-  cursor.style.top = mouseY + 'px';
+/* ─── CURSOR ─── */
+const cur = document.getElementById('cur');
+const curR = document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animR(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(animR)})();
+document.querySelectorAll('a,button,.lslot,.dest-row,.mc,.pc,.cur-btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{curR.style.transform='translate(-50%,-50%) scale(1.6)';curR.style.borderColor='rgba(200,168,75,.8)'});
+  el.addEventListener('mouseleave',()=>{curR.style.transform='translate(-50%,-50%) scale(1)';curR.style.borderColor='rgba(200,168,75,.45)'});
 });
 
-(function animRing() {
-  ringX += (mouseX - ringX) * 0.12;
-  ringY += (mouseY - ringY) * 0.12;
-  cursorRing.style.left = ringX + 'px';
-  cursorRing.style.top = ringY + 'px';
-  requestAnimationFrame(animRing);
+/* ─── COUNTDOWN ─── */
+function updateCD(){
+  const t=new Date('2026-09-01T00:00:00')-new Date();
+  if(t<=0)return;
+  const d=Math.floor(t/864e5),h=Math.floor(t%864e5/36e5),m=Math.floor(t%36e5/6e4),s=Math.floor(t%6e4/1e3);
+  const p2=n=>String(n).padStart(2,'0'),p3=n=>String(n).padStart(3,'0');
+  ['cd-d','cd2-d'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=p3(d)});
+  ['cd-h','cd2-h'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=p2(h)});
+  ['cd-m','cd2-m'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=p2(m)});
+  ['cd-s','cd2-s'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=p2(s)});
+}
+updateCD();setInterval(updateCD,1000);
+
+/* ─── HERO PARTICLES ─── */
+(function(){
+  const c=document.getElementById('hero-particles');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const pts=Array.from({length:80},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:(Math.random()-.5)*.25,vy:-Math.random()*.3-.05,a:Math.random()*.5+.1,s:Math.random()*1.5+.3,l:Math.random()}));
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.l+=.003;
+      if(p.y<-5||p.l>1){p.x=Math.random()*c.width;p.y=c.height+5;p.l=0}
+      ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,168,75,${p.a*(1-p.l)})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
 })();
 
-document.querySelectorAll('a, button, .loadout-slot, .currency-btn, .dest-row, .module-card').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.width = '12px';
-    cursor.style.height = '12px';
-    cursorRing.style.transform = 'translate(-50%,-50%) scale(1.5)';
-    cursorRing.style.borderColor = 'rgba(200,168,75,0.8)';
-  });
-  el.addEventListener('mouseleave', () => {
-    cursor.style.width = '8px';
-    cursor.style.height = '8px';
-    cursorRing.style.transform = 'translate(-50%,-50%) scale(1)';
-    cursorRing.style.borderColor = 'rgba(200,168,75,0.5)';
-  });
+/* ─── HERO GSAP INTRO ─── */
+const heroWords='Le monde est votre bureau.'.split(' ');
+const h1=document.getElementById('hero-h1');
+heroWords.forEach((w,i)=>{
+  const span=document.createElement('span');span.className='hero-word';
+  const inner=document.createElement('span');inner.textContent=(i<heroWords.length-1?w+' ':w);
+  span.appendChild(inner);h1.appendChild(span);
 });
 
-/* ============================================
-   SCROLL REVEAL
-   ============================================ */
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      revealObserver.unobserve(e.target);
-    }
-  });
-}, { threshold: 0.1 });
+const tl=gsap.timeline({delay:.3});
+tl.from('#hero-logo',{opacity:0,y:-20,duration:.8,ease:'power3.out'})
+  .from('.hero-word span',{y:'100%',opacity:0,duration:.8,stagger:.08,ease:'power4.out'},'-=.3')
+  .from('#hero-line',{width:0,duration:.8,ease:'power3.out'},'-=.3')
+  .from('#hero-sub',{opacity:0,y:16,duration:.6,ease:'power3.out'},'-=.2')
+  .from('#hero-cd',{opacity:0,duration:.5},'-=.2')
+  .from('#hero-ctas',{opacity:0,y:10,duration:.5},'-=.2');
 
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-
-/* ============================================
-   COUNTDOWN
-   ============================================ */
-function updateCountdown() {
-  const target = new Date('2026-09-01T00:00:00');
-  const now = new Date();
-  const diff = target - now;
-
-  if (diff <= 0) return;
-
-  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-  const fmt2 = n => String(n).padStart(2, '0');
-  const fmt3 = n => String(n).padStart(3, '0');
-
-  ['cd-days', 'cd2-days'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = fmt3(d); });
-  ['cd-hours', 'cd2-hours'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = fmt2(h); });
-  ['cd-mins', 'cd2-mins'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = fmt2(m); });
-  ['cd-secs', 'cd2-secs'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = fmt2(s); });
-}
-updateCountdown();
-setInterval(updateCountdown, 1000);
-
-/* ============================================
-   HERO PARALLAX
-   ============================================ */
-const heroContent = document.getElementById('hero-content');
-const heroVideo = document.getElementById('hero-video');
-window.addEventListener('scroll', () => {
-  const y = window.scrollY;
-  if (y < window.innerHeight) {
-    heroContent.style.transform = `translateY(${y * 0.35}px)`;
-    heroContent.style.opacity = 1 - (y / (window.innerHeight * 0.7));
-  }
+/* Hero scroll evaporate */
+gsap.to('.hero-word span',{
+  y:-60,opacity:0,stagger:.04,ease:'power2.in',
+  scrollTrigger:{trigger:'#hero',start:'30% top',end:'70% top',scrub:true}
+});
+gsap.to('#hero-video',{
+  scale:1.08,ease:'none',
+  scrollTrigger:{trigger:'#hero',start:'top top',end:'bottom top',scrub:true}
 });
 
-/* ============================================
-   COUNT-UP ANIMATION
-   ============================================ */
-const countUpObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const el = e.target;
-      const target = parseInt(el.dataset.target);
-      let start = 0;
-      const duration = 1800;
-      const startTime = performance.now();
-      function tick(now) {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 3);
-        el.textContent = Math.floor(ease * target);
-        if (progress < 1) requestAnimationFrame(tick);
-        else el.textContent = target;
-      }
-      requestAnimationFrame(tick);
-      countUpObserver.unobserve(el);
-    }
-  });
-}, { threshold: 0.5 });
-
-document.querySelectorAll('.count-up').forEach(el => countUpObserver.observe(el));
-
-/* ============================================
-   HOTSPOTS SCROLL REVEAL
-   ============================================ */
-const hotspots = document.querySelectorAll('.hotspot');
-const productObserver = new IntersectionObserver((entries) => {
-  if (entries[0].isIntersecting) {
-    hotspots.forEach((hs, i) => {
-      setTimeout(() => hs.classList.add('active'), i * 300 + 600);
+/* ─── MISSION ─── */
+const mEyebrow='01 — BRIEFING';
+let mIdx=0;
+ScrollTrigger.create({
+  trigger:'#mission',start:'top 80%',once:true,
+  onEnter:()=>{
+    const el=document.getElementById('mission-eyebrow');
+    const timer=setInterval(()=>{el.textContent=mEyebrow.slice(0,++mIdx);if(mIdx>=mEyebrow.length)clearInterval(timer)},40);
+    gsap.from('#mission-h2',{opacity:0,rotateY:15,duration:1,ease:'power3.out',delay:.3});
+    gsap.to('#mission-sep',{width:48,duration:.8,delay:.6,ease:'power3.out'});
+    // Word by word
+    ['#mission-p1','#mission-p2'].forEach((sel,pi)=>{
+      const p=document.querySelector(sel);
+      const words=p.textContent.split(' ');
+      p.innerHTML=words.map(w=>`<span class="word">${w} </span>`).join('');
+      gsap.to(`${sel} .word`,{opacity:1,y:0,duration:.4,stagger:.04,delay:.8+pi*.6,ease:'power2.out'});
     });
   }
-}, { threshold: 0.4 });
+});
 
-const productVisual = document.getElementById('product-visual');
-if (productVisual) productObserver.observe(productVisual);
-
-/* ============================================
-   CURRENCY RATES
-   ============================================ */
-const RATES = { EUR: 1, USD: 1.08, GBP: 0.85, CHF: 0.95, AED: 3.97 };
-const SYMBOLS = { EUR: '€', USD: '$', GBP: '£', CHF: '₣', AED: 'د.إ' };
-let activeCurrency = 'EUR';
-
-/* ============================================
-   DESTINATIONS DATA
-   ============================================ */
-const DESTINATIONS = [
-  {
-    city: 'Bangkok', country: 'Thaïlande',
-    members: 847, costMonth: 1200,
-    rent: [400, 700], cowork: [8, 15], food: [3, 6],
-    visa: '30j gratuit', temp: '28–35°C', score: 5,
-    lat: 13.75, lon: 100.5
-  },
-  {
-    city: 'Bali', country: 'Indonésie',
-    members: 1243, costMonth: 1000,
-    rent: [600, 1200], cowork: [10, 20], food: [2, 5],
-    visa: '30j gratuit', temp: '27–32°C', score: 5,
-    lat: -8.34, lon: 115.09
-  },
-  {
-    city: 'Dubaï', country: 'UAE',
-    members: 634, costMonth: 3500,
-    rent: [1500, 3000], cowork: [25, 50], food: [15, 30],
-    visa: '90j EU', temp: '22–40°C', score: 4,
-    lat: 25.2, lon: 55.27
-  },
-  {
-    city: 'Lisbonne', country: 'Portugal',
-    members: 923, costMonth: 1800,
-    rent: [900, 1500], cowork: [15, 25], food: [8, 15],
-    visa: 'Libre EU', temp: '15–28°C', score: 5,
-    lat: 38.72, lon: -9.14
-  },
-  {
-    city: 'Tokyo', country: 'Japon',
-    members: 412, costMonth: 2200,
-    rent: [800, 1500], cowork: [20, 35], food: [5, 12],
-    visa: '90j EU', temp: '0–35°C', score: 4,
-    lat: 35.68, lon: 139.69
-  },
-  {
-    city: 'Hô Chi Minh', country: 'Vietnam',
-    members: 389, costMonth: 800,
-    rent: [300, 600], cowork: [5, 10], food: [1, 4],
-    visa: '90j e-visa', temp: '25–35°C', score: 4,
-    lat: 10.76, lon: 106.66
-  },
-  {
-    city: 'Kuala Lumpur', country: 'Malaisie',
-    members: 298, costMonth: 1100,
-    rent: [400, 800], cowork: [8, 18], food: [2, 6],
-    visa: '90j gratuit', temp: '25–33°C', score: 4,
-    lat: 3.14, lon: 101.68
-  },
-  {
-    city: 'Barcelone', country: 'Espagne',
-    members: 567, costMonth: 2000,
-    rent: [1000, 1800], cowork: [15, 30], food: [10, 18],
-    visa: 'Libre EU', temp: '10–30°C', score: 4,
-    lat: 41.39, lon: 2.15
-  },
-  {
-    city: 'Singapour', country: 'Singapour',
-    members: 445, costMonth: 4000,
-    rent: [2000, 3500], cowork: [30, 60], food: [4, 10],
-    visa: '90j gratuit', temp: '25–32°C', score: 5,
-    lat: 1.35, lon: 103.82
-  },
-  {
-    city: 'Marrakech', country: 'Maroc',
-    members: 187, costMonth: 900,
-    rent: [300, 600], cowork: [8, 15], food: [3, 8],
-    visa: '90j gratuit', temp: '10–40°C', score: 3,
-    lat: 31.63, lon: -8.0
+ScrollTrigger.create({
+  trigger:'#mission-quote',start:'top 75%',scrub:false,once:true,
+  onEnter:()=>{
+    gsap.fromTo('#mission-quote',{fontSize:'20px',opacity:0},{fontSize:'68px',opacity:1,duration:1.2,ease:'power3.out'});
   }
+});
+
+/* ─── PRODUCT STICKY ─── */
+// Hotspots scroll
+const hss=[{id:'hs1',delay:0},{id:'hs2',delay:.2},{id:'hs3',delay:.4},{id:'hs4',delay:.6}];
+ScrollTrigger.create({
+  trigger:'#product-split',start:'top 60%',once:true,
+  onEnter:()=>hss.forEach(h=>setTimeout(()=>document.getElementById(h.id).classList.add('on'),h.delay*1000+600))
+});
+
+// Prod blocks
+['pb1','pb2','pb3','pb4'].forEach((id,i)=>{
+  gsap.from('#'+id,{opacity:0,scale:.95,y:20,duration:.8,ease:'power3.out',
+    scrollTrigger:{trigger:'#'+id,start:'top 75%',toggleActions:'play none none reverse'}
+  });
+});
+
+// Module cards
+['mc1','mc2','mc3','mc4'].forEach((id,i)=>{
+  gsap.from('#'+id,{opacity:0,y:30,duration:.7,delay:i*.15,ease:'power3.out',
+    scrollTrigger:{trigger:'#modules-cards',start:'top 80%',toggleActions:'play none none reverse'}
+  });
+});
+
+/* ─── LOADOUT BOOT ─── */
+ScrollTrigger.create({
+  trigger:'#loadout',start:'top 80%',once:true,
+  onEnter:()=>{
+    // Flash
+    gsap.fromTo('body',{backgroundColor:'#1a1a2e'},{backgroundColor:'#060608',duration:.4,ease:'power2.in'});
+    // Typewriter title
+    const txt='Composez votre mission.';
+    const el=document.getElementById('loadout-h2');
+    el.textContent='';
+    let i=0;const t=setInterval(()=>{el.textContent=txt.slice(0,++i);if(i>=txt.length)clearInterval(t)},40);
+    gsap.from('#loadout-left',{opacity:0,x:-60,duration:.8,delay:.4,ease:'power3.out'});
+    gsap.from('#loadout-right',{opacity:0,x:60,duration:.8,delay:.6,ease:'power3.out'});
+  }
+});
+
+/* ─── LOADOUT SYSTEM ─── */
+const selected=new Set(['bag']);
+function playTick(){
+  try{const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.connect(g);g.connect(ac.destination);o.frequency.value=800;
+    g.gain.setValueAtTime(.1,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.1);
+    o.start();o.stop(ac.currentTime+.1);}catch(e){}
+}
+function ldUpdate(){
+  const mods={malette:{name:'Mallette PC',price:59},camera:{name:'Module Caméra',price:39},trousse:{name:'Trousse Toilette',price:35},pochette:{name:'Pochette Rapide',price:29}};
+  const extras=[...selected].filter(m=>m!=='bag');
+  const total=100+extras.reduce((s,m)=>s+(mods[m]?.price||0),0);
+  const full=extras.length===4;
+
+  // Items
+  const list=document.getElementById('ld-items');
+  list.innerHTML='<div class="ld-row"><span class="ld-row-name">Sac Exodus 40L</span><span class="ld-row-price">100€</span></div>';
+  extras.forEach(m=>{const r=document.createElement('div');r.className='ld-row';r.innerHTML=`<span class="ld-row-name">${mods[m].name}</span><span class="ld-row-price">+${mods[m].price}€</span>`;list.appendChild(r)});
+
+  // Animate total
+  const el=document.getElementById('ld-total');
+  const cur2=parseInt(el.textContent)||0;
+  gsap.to({v:cur2},{v:full?189:total,duration:.4,ease:'power2.out',onUpdate:function(){el.textContent=Math.round(this.targets()[0].v)+'€'}});
+  el.classList.toggle('full',full);
+  document.getElementById('ld-eb').classList.toggle('on',full);
+
+  // Progress
+  const pct=Math.round((selected.size/5)*100);
+  document.getElementById('ld-progress-fill').style.width=pct+'%';
+  document.getElementById('ld-pct').textContent=pct+'%';
+}
+
+document.querySelectorAll('.lslot:not(.mandatory)').forEach(slot=>{
+  slot.addEventListener('click',()=>{
+    const m=slot.dataset.mod;
+    const badge=slot.querySelector('.lbadge');
+    if(selected.has(m)){selected.delete(m);slot.classList.remove('active');badge.classList.remove('on')}
+    else{selected.add(m);slot.classList.add('active');badge.classList.add('on');playTick();
+      gsap.fromTo(slot,{boxShadow:'0 0 0 rgba(200,168,75,0)'},{boxShadow:'0 0 30px rgba(200,168,75,.2)',duration:.3,yoyo:true,repeat:1});
+      if(typeof window._charGlow==='function')window._charGlow();
+    }
+    ldUpdate();
+  });
+});
+ldUpdate();
+
+/* ─── THREE.JS CHARACTER ─── */
+(function(){
+  const container=document.getElementById('loadout-center');
+  const cv=document.getElementById('char-canvas');
+  const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.shadowMap.enabled=true;
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,1,.1,100);
+  camera.position.set(0,1.2,3.5);
+
+  const dLight=new THREE.DirectionalLight(0xffffff,2.5);dLight.position.set(3,6,4);dLight.castShadow=true;scene.add(dLight);
+  const pLight=new THREE.PointLight(0xb4c8ff,1,20);pLight.position.set(-4,2,-2);scene.add(pLight);
+  const rLight=new THREE.DirectionalLight(0xffffff,1.5);rLight.position.set(0,4,-6);scene.add(rLight);
+  scene.add(new THREE.AmbientLight(0x1a1a2e,1));
+
+  const controls=new THREE.OrbitControls(camera,cv);
+  controls.enableDamping=true;controls.dampingFactor=.08;
+  controls.enableZoom=false;controls.enablePan=false;
+  controls.autoRotate=true;controls.autoRotateSpeed=1.8;
+  controls.minPolarAngle=Math.PI/4;controls.maxPolarAngle=Math.PI*.75;
+  cv.addEventListener('mousedown',()=>controls.autoRotate=false);
+  cv.addEventListener('mouseup',()=>setTimeout(()=>controls.autoRotate=true,2500));
+
+  function buildFallback(){
+    const mat=new THREE.MeshStandardMaterial({color:new THREE.Color(210/255,215/255,220/255),roughness:.8,metalness:.1});
+    const g=new THREE.Group();
+    [[0,.85,.55,.75,.28],[0,1.6,.22,.22,.22,'sphere'],[-.42,.82,.18,.65,.18],[.42,.82,.18,.65,.18],
+     [-.18,.15,.2,.7,.22],[.18,.15,.2,.7,.22]].forEach(([x,y,w,h,d,t])=>{
+      const mesh=new THREE.Mesh(t==='sphere'?new THREE.SphereGeometry(w,16,16):new THREE.BoxGeometry(w,h,d),mat);
+      mesh.position.set(x,y,0);g.add(mesh);
+    });
+    const bagM=new THREE.MeshStandardMaterial({color:0x1a1a2e,roughness:.9,metalness:.2});
+    const bag=new THREE.Mesh(new THREE.BoxGeometry(.36,.52,.14),bagM);bag.position.set(0,.88,-.22);g.add(bag);
+    g.position.y=-.5;scene.add(g);
+  }
+
+  const loader=new THREE.GLTFLoader();
+  loader.load('https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/character.glb',gltf=>{
+    const model=gltf.scene;
+    const box=new THREE.Box3().setFromObject(model);
+    const center=box.getCenter(new THREE.Vector3());
+    const size=box.getSize(new THREE.Vector3());
+    model.scale.setScalar(2.2/Math.max(size.x,size.y,size.z));
+    model.position.sub(center.multiplyScalar(2.2/Math.max(size.x,size.y,size.z)));
+    model.traverse(c=>{if(c.isMesh&&c.material){c.castShadow=true;c.material.color=new THREE.Color(210/255,215/255,220/255);c.material.roughness=.8;c.material.metalness=.1}});
+    scene.add(model);
+  },undefined,()=>buildFallback());
+  setTimeout(()=>{if(scene.children.length<5)buildFallback()},5000);
+
+  window._charGlow=()=>{pLight.intensity=8;pLight.color.set(0xc8a84b);setTimeout(()=>{pLight.intensity=1;pLight.color.set(0xb4c8ff)},400)};
+
+  // Particles overlay
+  const pc=document.getElementById('char-particles');
+  const pctx=pc.getContext('2d');
+  const particles2=Array.from({length:50},()=>({x:Math.random()*600,y:Math.random()*700,vx:(Math.random()-.5)*.25,vy:-Math.random()*.35-.05,s:Math.random()*1.5+.3,a:Math.random()*.5+.15,l:Math.random()}));
+
+  function resize(){
+    const W=container.offsetWidth||600,H=container.offsetHeight||700;
+    camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);
+    pc.width=W;pc.height=H;
+  }
+  resize();new ResizeObserver(resize).observe(container);
+
+  function animate(){
+    requestAnimationFrame(animate);controls.update();
+    pctx.clearRect(0,0,pc.width,pc.height);
+    particles2.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.l+=.004;
+      if(p.y<-5||p.l>1){p.x=Math.random()*pc.width;p.y=pc.height+5;p.l=0}
+      pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);
+      pctx.fillStyle=`rgba(200,168,75,${p.a*(1-p.l)})`;pctx.fill();
+    });
+    renderer.render(scene,camera);
+  }
+  animate();
+})();
+
+/* ─── GLOBE ─── */
+const RATES={EUR:1,USD:1.08,GBP:.85,CHF:.95,AED:3.97};
+const SYMS={EUR:'€',USD:'$',GBP:'£',CHF:'₣',AED:'د.إ'};
+let activeCur='EUR';
+
+const DESTS=[
+  {city:'Bangkok',country:'Thaïlande',lat:13.75,lng:100.52,members:847,cost:1200,rent:[400,700],cowork:[8,15],food:[3,6],visa:'30j gratuit',temp:'28–35°C',score:5},
+  {city:'Bali',country:'Indonésie',lat:-8.34,lng:115.09,members:1243,cost:1000,rent:[600,1200],cowork:[10,20],food:[2,5],visa:'30j gratuit',temp:'27–32°C',score:5},
+  {city:'Dubaï',country:'UAE',lat:25.20,lng:55.27,members:634,cost:3500,rent:[1500,3000],cowork:[25,50],food:[15,30],visa:'90j EU',temp:'22–40°C',score:4},
+  {city:'Lisbonne',country:'Portugal',lat:38.72,lng:-9.14,members:923,cost:1800,rent:[900,1500],cowork:[15,25],food:[8,15],visa:'Libre EU',temp:'15–28°C',score:5},
+  {city:'Tokyo',country:'Japon',lat:35.68,lng:139.69,members:412,cost:2200,rent:[800,1500],cowork:[20,35],food:[5,12],visa:'90j EU',temp:'0–35°C',score:4},
+  {city:'Hô Chi Minh',country:'Vietnam',lat:10.82,lng:106.63,members:389,cost:800,rent:[300,600],cowork:[5,10],food:[1,4],visa:'90j e-visa',temp:'25–35°C',score:4},
+  {city:'Kuala Lumpur',country:'Malaisie',lat:3.14,lng:101.69,members:298,cost:1100,rent:[400,800],cowork:[8,18],food:[2,6],visa:'90j gratuit',temp:'25–33°C',score:4},
+  {city:'Barcelone',country:'Espagne',lat:41.39,lng:2.15,members:567,cost:2000,rent:[1000,1800],cowork:[15,30],food:[10,18],visa:'Libre EU',temp:'10–30°C',score:4},
+  {city:'Singapour',country:'Singapour',lat:1.35,lng:103.82,members:445,cost:4000,rent:[2000,3500],cowork:[30,60],food:[4,10],visa:'90j gratuit',temp:'25–32°C',score:5},
+  {city:'Marrakech',country:'Maroc',lat:31.63,lng:-7.99,members:187,cost:900,rent:[300,600],cowork:[8,15],food:[3,8],visa:'90j gratuit',temp:'10–40°C',score:3}
 ];
+function cvt(v){return Math.round(v*RATES[activeCur])+SYMS[activeCur]}
+function stars(n){return'★'.repeat(n)+'☆'.repeat(5-n)}
 
-function cvt(amount) {
-  const r = RATES[activeCurrency];
-  const s = SYMBOLS[activeCurrency];
-  return Math.round(amount * r) + s;
-}
-
-function stars(n) {
-  return '★'.repeat(n) + '☆'.repeat(5 - n);
-}
-
-/* ============================================
-   DESTINATION LIST
-   ============================================ */
-function renderDestList() {
-  const list = document.getElementById('globe-dest-list');
-  list.innerHTML = DESTINATIONS.map((d, i) => `
-    <div class="dest-row reveal" data-index="${i}" style="transition-delay:${i*0.05}s">
-      <div class="dest-row-left">
-        <div class="dest-row-city">${d.city}</div>
-        <div class="dest-row-country">${d.country}</div>
-      </div>
-      <div class="dest-row-right">
-        <div class="dest-row-cost">${cvt(d.costMonth)}/mois</div>
-        <div class="dest-row-members">${d.members} membres</div>
-        <div class="dest-row-score">${stars(d.score)}</div>
-      </div>
-    </div>
-  `).join('');
-
-  list.querySelectorAll('.dest-row').forEach(row => {
-    revealObserver.observe(row);
-    row.addEventListener('click', () => openDestPanel(parseInt(row.dataset.index)));
-    row.addEventListener('mouseenter', () => {
-      cursor.style.width = '12px';
-      cursor.style.height = '12px';
-    });
-    row.addEventListener('mouseleave', () => {
-      cursor.style.width = '8px';
-      cursor.style.height = '8px';
-    });
+// Dest list
+function renderList(){
+  const dl=document.getElementById('dest-list');
+  dl.innerHTML=DESTS.map((d,i)=>`
+    <div class="dest-row" data-i="${i}">
+      <div><div class="dest-city">${d.city}</div><div class="dest-country">${d.country}</div></div>
+      <div class="dest-right"><div class="dest-cost">${cvt(d.cost)}/mois</div><div class="dest-members">${d.members} membres</div><div class="dest-stars">${stars(d.score)}</div></div>
+    </div>`).join('');
+  dl.querySelectorAll('.dest-row').forEach(row=>{
+    row.addEventListener('click',()=>openPanel(parseInt(row.dataset.i)));
   });
 }
+renderList();
 
-renderDestList();
-
-/* ============================================
-   DESTINATION PANEL
-   ============================================ */
-function openDestPanel(index) {
-  const d = DESTINATIONS[index];
-  document.getElementById('dest-panel-city').textContent = d.city;
-  document.getElementById('dest-panel-country').textContent = d.country.toUpperCase();
-
-  const statsHTML = `
-    <div class="dest-stat">
-      <span class="dest-stat-label">Coût mensuel</span>
-      <span class="dest-stat-value">${cvt(d.costMonth)}</span>
-    </div>
-    <div class="dest-stat">
-      <span class="dest-stat-label">Location</span>
-      <span class="dest-stat-value">${cvt(d.rent[0])} – ${cvt(d.rent[1])}</span>
-    </div>
-    <div class="dest-stat">
-      <span class="dest-stat-label">Coworking / jour</span>
-      <span class="dest-stat-value">${cvt(d.cowork[0])} – ${cvt(d.cowork[1])}</span>
-    </div>
-    <div class="dest-stat">
-      <span class="dest-stat-label">Repas</span>
-      <span class="dest-stat-value">${cvt(d.food[0])} – ${cvt(d.food[1])}</span>
-    </div>
-    <div class="dest-stat">
-      <span class="dest-stat-label">Visa</span>
-      <span class="dest-stat-value" style="font-size:16px">${d.visa}</span>
-    </div>
-    <div class="dest-stat">
-      <span class="dest-stat-label">Température</span>
-      <span class="dest-stat-value" style="font-size:16px">${d.temp}</span>
-    </div>
-    <div class="dest-stat">
-      <span class="dest-stat-label">Membres actifs</span>
-      <span class="dest-stat-value">${d.members}</span>
-    </div>
-    <div class="dest-stat">
-      <span class="dest-stat-label">Score communauté</span>
-      <span class="dest-stars">${stars(d.score)}</span>
-    </div>
-  `;
-  document.getElementById('dest-panel-stats').innerHTML = statsHTML;
+function openPanel(i){
+  const d=DESTS[i];
+  document.getElementById('dp-city').textContent=d.city;
+  document.getElementById('dp-country').textContent=d.country.toUpperCase();
+  document.getElementById('dp-stats').innerHTML=[
+    ['Coût mensuel',cvt(d.cost)],
+    ['Location',cvt(d.rent[0])+' – '+cvt(d.rent[1])],
+    ['Coworking / jour',cvt(d.cowork[0])+' – '+cvt(d.cowork[1])],
+    ['Repas',cvt(d.food[0])+' – '+cvt(d.food[1])],
+    ['Visa',d.visa],
+    ['Température',d.temp],
+    ['Membres',d.members.toString()],
+    ['Score',`<span style="color:var(--gold)">${stars(d.score)}</span>`]
+  ].map(([l,v])=>`<div class="dp-stat"><span class="dp-stat-lbl">${l}</span><span class="dp-stat-val">${v}</span></div>`).join('');
   document.getElementById('dest-panel').classList.add('open');
 }
-
-document.getElementById('dest-panel-close').addEventListener('click', () => {
-  document.getElementById('dest-panel').classList.remove('open');
-});
-
-/* Currency switcher */
-document.querySelectorAll('.currency-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeCurrency = btn.dataset.currency;
-    renderDestList();
+document.getElementById('dp-close').addEventListener('click',()=>document.getElementById('dest-panel').classList.remove('open'));
+document.querySelectorAll('.cur-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.cur-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');activeCur=b.dataset.c;renderList();
   });
 });
 
-/* ============================================
-   THREE.JS GLOBE
-   ============================================ */
-(function initGlobe() {
-  const canvas = document.getElementById('globe-canvas');
-  const W = canvas.offsetWidth || 640;
-  const H = canvas.offsetHeight || 520;
-  canvas.width = W;
-  canvas.height = H;
+// Globe.gl
+let globeInstance=null;
+ScrollTrigger.create({
+  trigger:'#globe-section',start:'top 80%',once:true,
+  onEnter:()=>{
+    const container=document.getElementById('globe-container');
+    const W=container.offsetWidth||700;
+    const H=container.offsetHeight||520;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setSize(W, H);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    try{
+      globeInstance=Globe()(container)
+        .width(W).height(H)
+        .backgroundColor('rgba(0,0,0,0)')
+        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
+        .atmosphereColor('#4466aa')
+        .atmosphereAltitude(.15)
+        .pointsData(DESTS)
+        .pointLat('lat').pointLng('lng')
+        .pointColor(()=>'#c8a84b')
+        .pointAltitude(.01)
+        .pointRadius(.4)
+        .pointsMerge(false)
+        .onPointHover((pt,ev)=>{
+          const tt=document.getElementById('globe-tooltip');
+          if(pt){
+            document.getElementById('tt-city').textContent=pt.city;
+            document.getElementById('tt-members').textContent=pt.members+' MEMBRES';
+            document.getElementById('tt-info').textContent=cvt(pt.cost)+'/mois — '+stars(pt.score);
+            if(ev){tt.style.left=(ev.clientX+16)+'px';tt.style.top=(ev.clientY-10)+'px'}
+            tt.style.opacity='1';
+          }else{tt.style.opacity='0'}
+        })
+        .onPointClick(pt=>{if(pt){const i=DESTS.indexOf(pt);if(i>=0)openPanel(i)}})
+        .arcsData([
+          {startLat:13.75,startLng:100.52,endLat:-8.34,endLng:115.09},
+          {startLat:38.72,startLng:-9.14,endLat:25.20,endLng:55.27},
+          {startLat:41.39,startLng:2.15,endLat:38.72,endLng:-9.14},
+          {startLat:1.35,startLng:103.82,endLat:35.68,endLng:139.69},
+          {startLat:13.75,startLng:100.52,endLat:1.35,endLng:103.82},
+          {startLat:25.20,startLng:55.27,endLat:1.35,endLng:103.82},
+          {startLat:10.82,startLng:106.63,endLat:13.75,endLng:100.52},
+          {startLat:31.63,startLng:-7.99,endLat:38.72,endLng:-9.14}
+        ])
+        .arcColor(()=>'#c8a84b')
+        .arcAltitude(.3)
+        .arcStroke(.5)
+        .arcDashLength(.4)
+        .arcDashGap(.6)
+        .arcDashAnimateTime(2000)
+        .arcOpacity(.6);
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
-  camera.position.z = 2.8;
+      globeInstance.controls().autoRotate=true;
+      globeInstance.controls().autoRotateSpeed=.6;
+      globeInstance.controls().enableZoom=false;
 
-  /* Globe mesh */
-  const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-  const globeMat = new THREE.MeshPhongMaterial({
-    color: 0x0d0d18,
-    emissive: 0x050508,
-    wireframe: false,
-    transparent: true,
-    opacity: 0.95
-  });
-  const globe = new THREE.Mesh(globeGeo, globeMat);
-  scene.add(globe);
+      // Zoom in from space
+      globeInstance.pointOfView({altitude:4},0);
+      setTimeout(()=>globeInstance.pointOfView({altitude:2.2},1800),300);
 
-  /* Wireframe overlay */
-  const wfMat = new THREE.MeshBasicMaterial({
-    color: 0xc8a84b,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.06
-  });
-  const wireframe = new THREE.Mesh(new THREE.SphereGeometry(1.001, 32, 32), wfMat);
-  scene.add(wireframe);
-
-  /* Atmosphere glow */
-  const atmGeo = new THREE.SphereGeometry(1.08, 32, 32);
-  const atmMat = new THREE.MeshBasicMaterial({
-    color: 0x1a1a3e,
-    transparent: true,
-    opacity: 0.15,
-    side: THREE.BackSide
-  });
-  scene.add(new THREE.Mesh(atmGeo, atmMat));
-
-  /* Lights */
-  const ambLight = new THREE.AmbientLight(0x222244, 1.0);
-  scene.add(ambLight);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-  dirLight.position.set(3, 2, 4);
-  scene.add(dirLight);
-
-  /* Convert lat/lon to 3D */
-  function latLonTo3D(lat, lon, r) {
-    const phi = (90 - lat) * Math.PI / 180;
-    const theta = (lon + 180) * Math.PI / 180;
-    return new THREE.Vector3(
-      -r * Math.sin(phi) * Math.cos(theta),
-      r * Math.cos(phi),
-      r * Math.sin(phi) * Math.sin(theta)
-    );
+    }catch(e){console.warn('Globe.gl failed',e)}
   }
+});
 
-  /* Destination markers */
-  const markers = [];
-  const markerGroup = new THREE.Group();
-  scene.add(markerGroup);
-
-  DESTINATIONS.forEach((d, i) => {
-    const pos = latLonTo3D(d.lat, d.lon, 1.02);
-
-    /* Outer ring */
-    const ringGeo = new THREE.RingGeometry(0.018, 0.026, 16);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0xc8a84b, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.position.copy(pos);
-    ring.lookAt(new THREE.Vector3(0, 0, 0));
-    markerGroup.add(ring);
-
-    /* Dot */
-    const dotGeo = new THREE.SphereGeometry(0.012, 8, 8);
-    const dotMat = new THREE.MeshBasicMaterial({ color: 0xc8a84b });
-    const dot = new THREE.Mesh(dotGeo, dotMat);
-    dot.position.copy(pos);
-    markerGroup.add(dot);
-
-    markers.push({ ring, dot, pos, data: d, index: i });
-  });
-
-  /* Arcs between destinations */
-  function createArc(p1, p2) {
-    const mid = p1.clone().add(p2).multiplyScalar(0.5).normalize().multiplyScalar(1.3);
-    const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
-    const pts = curve.getPoints(60);
-    const geo = new THREE.BufferGeometry().setFromPoints(pts);
-    const mat = new THREE.LineBasicMaterial({ color: 0xc8a84b, transparent: true, opacity: 0.15 });
-    return new THREE.Line(geo, mat);
-  }
-
-  const arcPairs = [[0,3],[1,2],[3,7],[4,5],[8,6],[0,8],[1,5],[3,2]];
-  arcPairs.forEach(([a, b]) => {
-    const arc = createArc(markers[a].pos, markers[b].pos);
-    scene.add(arc);
-  });
-
-  /* Mouse interaction */
-  let isDragging = false;
-  let prevMouse = { x: 0, y: 0 };
-  let rotY = 0, rotX = 0;
-  let autoRotate = true;
-
-  canvas.addEventListener('mousedown', e => {
-    isDragging = true;
-    autoRotate = false;
-    prevMouse = { x: e.clientX, y: e.clientY };
-  });
-
-  canvas.addEventListener('mousemove', e => {
-    if (isDragging) {
-      const dx = e.clientX - prevMouse.x;
-      const dy = e.clientY - prevMouse.y;
-      rotY += dx * 0.005;
-      rotX += dy * 0.003;
-      rotX = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, rotX));
-      prevMouse = { x: e.clientX, y: e.clientY };
-    }
-  });
-
-  canvas.addEventListener('mouseup', () => { isDragging = false; });
-  canvas.addEventListener('mouseleave', () => { isDragging = false; });
-
-  /* Raycasting for tooltip */
-  const raycaster = new THREE.Raycaster();
-  const mouse2D = new THREE.Vector2();
-  const tooltip = document.getElementById('globe-tooltip');
-
-  canvas.addEventListener('mousemove', e => {
-    const rect = canvas.getBoundingClientRect();
-    mouse2D.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse2D.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-    raycaster.setFromCamera(mouse2D, camera);
-    const dotMeshes = markers.map(m => m.dot);
-    const hits = raycaster.intersectObjects(dotMeshes);
-
-    if (hits.length > 0) {
-      const idx = dotMeshes.indexOf(hits[0].object);
-      const d = markers[idx].data;
-      document.getElementById('tt-city').textContent = d.city;
-      document.getElementById('tt-members').textContent = d.members + ' MEMBRES ACTIFS';
-      document.getElementById('tt-cost').textContent = cvt(d.costMonth) + '/mois — ' + stars(d.score);
-      tooltip.style.left = (e.clientX + 16) + 'px';
-      tooltip.style.top = (e.clientY - 20) + 'px';
-      tooltip.classList.add('visible');
-      canvas.style.cursor = 'pointer';
-    } else {
-      tooltip.classList.remove('visible');
-      canvas.style.cursor = isDragging ? 'grabbing' : 'grab';
-    }
-  });
-
-  canvas.addEventListener('click', e => {
-    const rect = canvas.getBoundingClientRect();
-    mouse2D.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse2D.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouse2D, camera);
-    const dotMeshes = markers.map(m => m.dot);
-    const hits = raycaster.intersectObjects(dotMeshes);
-    if (hits.length > 0) {
-      const idx = dotMeshes.indexOf(hits[0].object);
-      openDestPanel(idx);
-    }
-  });
-
-  /* Animation */
-  let t = 0;
-  function animate() {
-    requestAnimationFrame(animate);
-    t += 0.01;
-
-    if (autoRotate) rotY += 0.003;
-    else if (!isDragging) {
-      setTimeout(() => { autoRotate = true; }, 3000);
-    }
-
-    globe.rotation.y = rotY;
-    globe.rotation.x = rotX;
-    wireframe.rotation.y = rotY;
-    wireframe.rotation.x = rotX;
-    markerGroup.rotation.y = rotY;
-    markerGroup.rotation.x = rotX;
-
-    /* Pulse markers */
-    markers.forEach((m, i) => {
-      const s = 1 + 0.15 * Math.sin(t * 2 + i * 0.7);
-      m.ring.scale.setScalar(s);
-      m.ring.material.opacity = 0.4 + 0.4 * Math.sin(t * 1.5 + i * 0.5);
+// Stars background
+(function(){
+  const c=document.getElementById('globe-stars');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=c.offsetWidth;c.height=c.offsetHeight}
+  c.style.position='absolute';c.style.inset='0';c.style.width='100%';c.style.height='100%';
+  resize();window.addEventListener('resize',resize);
+  const stars2=Array.from({length:200},()=>({x:Math.random(),y:Math.random(),s:Math.random()*.8+.2,a:Math.random()*.6+.1,b:Math.random()}));
+  function draw2(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars2.forEach(s=>{
+      s.b+=.005;const alpha=s.a*(.5+.5*Math.sin(s.b));
+      ctx.beginPath();ctx.arc(s.x*c.width,s.y*c.height,s.s,0,Math.PI*2);
+      ctx.fillStyle=`rgba(240,239,232,${alpha})`;ctx.fill();
     });
-
-    renderer.render(scene, camera);
+    requestAnimationFrame(draw2);
   }
-  animate();
-
-  /* Resize */
-  window.addEventListener('resize', () => {
-    const W2 = canvas.offsetWidth;
-    const H2 = canvas.offsetHeight;
-    camera.aspect = W2 / H2;
-    camera.updateProjectionMatrix();
-    renderer.setSize(W2, H2);
-  });
+  draw2();
 })();
 
-/* ============================================
-   THREE.JS CHARACTER — LOADOUT
-   ============================================ */
-(function initCharacter() {
-  const canvas = document.getElementById('character-canvas');
-  const container = document.getElementById('loadout-center');
+/* ─── GLOBE SCROLL ANIM ─── */
+gsap.fromTo('#globe-section',{opacity:0},{opacity:1,duration:.8,ease:'power2.out',
+  scrollTrigger:{trigger:'#globe-section',start:'top 85%',toggleActions:'play none none reverse'}
+});
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.set(0, 1.2, 3.5);
-
-  const scene = new THREE.Scene();
-
-  /* Lights */
-  const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
-  dirLight.position.set(3, 6, 4);
-  dirLight.castShadow = true;
-  scene.add(dirLight);
-
-  const pointLight = new THREE.PointLight(0xb4c8ff, 1, 20);
-  pointLight.position.set(-4, 2, -2);
-  scene.add(pointLight);
-
-  const rimLight = new THREE.DirectionalLight(0xffffff, 1.5);
-  rimLight.position.set(0, 4, -6);
-  scene.add(rimLight);
-
-  const ambLight = new THREE.AmbientLight(0x1a1a2e, 1.0);
-  scene.add(ambLight);
-
-  let charModel = null;
-  let charGlow = false;
-  let glowTimeout = null;
-
-  /* Fallback mannequin */
-  function buildFallback() {
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(210/255, 215/255, 220/255),
-      roughness: 0.8,
-      metalness: 0.1
-    });
-
-    const group = new THREE.Group();
-
-    /* Body */
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.75, 0.28), mat);
-    body.position.y = 0.85;
-    group.add(body);
-
-    /* Head */
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), mat);
-    head.position.y = 1.6;
-    group.add(head);
-
-    /* Arms */
-    [-1, 1].forEach(side => {
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), mat);
-      arm.position.set(side * 0.42, 0.82, 0);
-      group.add(arm);
-    });
-
-    /* Legs */
-    [-1, 1].forEach(side => {
-      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.22), mat);
-      leg.position.set(side * 0.18, 0.15, 0);
-      group.add(leg);
-    });
-
-    /* Backpack */
-    const bag = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.52, 0.14), new THREE.MeshStandardMaterial({
-      color: 0x1a1a2e,
-      roughness: 0.9,
-      metalness: 0.2
-    }));
-    bag.position.set(0, 0.88, -0.22);
-    group.add(bag);
-
-    group.position.y = -0.5;
-    scene.add(group);
-    charModel = group;
-    document.getElementById('char-label').textContent = 'DRAG TO ROTATE';
-  }
-
-  /* Try loading GLB */
-  const loader = new THREE.GLTFLoader();
-  loader.load(
-    'https://raw.githubusercontent.com/rodriguewixfactory-hub/reventury-assets/main/character.glb',
-    (gltf) => {
-      const model = gltf.scene;
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 2.2 / maxDim;
-      model.scale.setScalar(scale);
-      model.position.sub(center.multiplyScalar(scale));
-
-      model.traverse(child => {
-        if (child.isMesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
-          if (child.material) {
-            child.material.color = new THREE.Color(210/255, 215/255, 220/255);
-            child.material.roughness = 0.8;
-            child.material.metalness = 0.1;
-          }
-        }
-      });
-
-      scene.add(model);
-      charModel = model;
-      document.getElementById('char-label').textContent = 'DRAG TO ROTATE';
-    },
-    undefined,
-    () => buildFallback()
-  );
-
-  /* Fallback timeout */
-  setTimeout(() => { if (!charModel) buildFallback(); }, 5000);
-
-  /* OrbitControls */
-  const controls = new THREE.OrbitControls(camera, canvas);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.enableZoom = false;
-  controls.enablePan = false;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 1.5;
-  controls.minPolarAngle = Math.PI / 4;
-  controls.maxPolarAngle = Math.PI * 3 / 4;
-
-  canvas.addEventListener('mousedown', () => { controls.autoRotate = false; });
-  canvas.addEventListener('mouseup', () => { setTimeout(() => controls.autoRotate = true, 2000); });
-
-  /* Particles */
-  const particleCanvas = document.getElementById('character-particles');
-  const pCtx = particleCanvas.getContext('2d');
-
-  function resizeParticles() {
-    particleCanvas.width = container.offsetWidth;
-    particleCanvas.height = container.offsetHeight;
-  }
-  resizeParticles();
-
-  const particles = Array.from({ length: 50 }, () => ({
-    x: Math.random() * 600,
-    y: Math.random() * 700,
-    vx: (Math.random() - 0.5) * 0.3,
-    vy: -Math.random() * 0.4 - 0.1,
-    size: Math.random() * 2 + 0.5,
-    alpha: Math.random() * 0.6 + 0.2,
-    life: Math.random()
-  }));
-
-  function drawParticles() {
-    pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-    particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life += 0.004;
-      if (p.y < -10 || p.life > 1) {
-        p.x = Math.random() * particleCanvas.width;
-        p.y = particleCanvas.height + 10;
-        p.life = 0;
-      }
-      const alpha = p.alpha * (1 - p.life);
-      pCtx.beginPath();
-      pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      pCtx.fillStyle = `rgba(200,168,75,${alpha})`;
-      pCtx.fill();
-    });
-  }
-
-  /* Glow effect */
-  window.triggerCharGlow = function() {
-    charGlow = true;
-    clearTimeout(glowTimeout);
-    glowTimeout = setTimeout(() => { charGlow = false; }, 600);
-
-    /* Flash the point light */
-    pointLight.intensity = 6;
-    pointLight.color.set(0xc8a84b);
-    setTimeout(() => {
-      pointLight.intensity = 1;
-      pointLight.color.set(0xb4c8ff);
-    }, 400);
-  };
-
-  /* Resize */
-  function resize() {
-    const W = container.offsetWidth;
-    const H = container.offsetHeight;
-    camera.aspect = W / H;
-    camera.updateProjectionMatrix();
-    renderer.setSize(W, H);
-    resizeParticles();
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    drawParticles();
-    renderer.render(scene, camera);
-  }
-  animate();
-})();
-
-/* ============================================
-   LOADOUT SYSTEM
-   ============================================ */
-(function initLoadout() {
-  const BASE_PRICE = 162; /* 189 - 27 (base bag value) — display 189 for full pack */
-  const selectedModules = new Set(['bag']);
-  let totalExtra = 0;
-
-  /* Audio feedback */
-  function playTick() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 800;
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.1);
-    } catch (e) {}
-  }
-
-  /* Module data */
-  const MODULE_DATA = {
-    bag:      { name: 'Sac Exodus 40L', price: 0 },
-    malette:  { name: 'Mallette PC', price: 59 },
-    camera:   { name: 'Module Caméra', price: 39 },
-    trousse:  { name: 'Trousse Toilette', price: 35 },
-    pochette: { name: 'Pochette Rapide', price: 29 }
-  };
-
-  function updateSummary() {
-    /* Calculate total */
-    let total = 0;
-    const allModules = ['malette', 'camera', 'trousse', 'pochette'];
-    const extraSelected = allModules.filter(m => selectedModules.has(m));
-    extraSelected.forEach(m => total += MODULE_DATA[m].price);
-
-    const isFullPack = extraSelected.length === 4;
-    const displayTotal = isFullPack ? 189 : (total > 0 ? total + 100 : 100); /* 100 = base bag */
-
-    /* Update price display */
-    const priceEl = document.getElementById('loadout-total-price');
-    const ebEl = document.getElementById('loadout-early-bird');
-
-    /* Animate price */
-    const current = parseInt(priceEl.textContent) || 0;
-    const target = displayTotal;
-    const diff = target - current;
-    const steps = 20;
-    let step = 0;
-    const anim = setInterval(() => {
-      step++;
-      const val = Math.round(current + (diff * step / steps));
-      priceEl.textContent = val + '€';
-      if (step >= steps) {
-        clearInterval(anim);
-        priceEl.textContent = target + '€';
-      }
-    }, 20);
-
-    if (isFullPack) {
-      priceEl.classList.add('full');
-      ebEl.classList.add('visible');
-      ebEl.textContent = 'EARLY BIRD — -14% — PACK COMPLET : 189€';
-    } else {
-      priceEl.classList.remove('full');
-      ebEl.classList.remove('visible');
-    }
-
-    /* Update items list */
-    const list = document.getElementById('loadout-items-list');
-    list.innerHTML = '';
-
-    /* Bag always first */
-    const bagRow = document.createElement('div');
-    bagRow.className = 'loadout-item-row';
-    bagRow.innerHTML = `<span class="loadout-item-name">Sac Exodus 40L</span><span class="loadout-item-price">100€</span>`;
-    list.appendChild(bagRow);
-
-    extraSelected.forEach(m => {
-      const row = document.createElement('div');
-      row.className = 'loadout-item-row';
-      row.innerHTML = `<span class="loadout-item-name">${MODULE_DATA[m].name}</span><span class="loadout-item-price">+${MODULE_DATA[m].price}€</span>`;
-      list.appendChild(row);
-    });
-
-    /* Progress */
-    const totalModules = 5; /* bag + 4 */
-    const pct = Math.round((selectedModules.size / totalModules) * 100);
-    document.getElementById('loadout-progress-fill').style.width = pct + '%';
-    document.getElementById('loadout-progress-pct').textContent = pct + '%';
-  }
-
-  /* Slot interactions */
-  document.querySelectorAll('.loadout-slot:not(.mandatory)').forEach(slot => {
-    slot.addEventListener('click', () => {
-      const mod = slot.dataset.module;
-      const badge = slot.querySelector('.loadout-badge');
-
-      if (selectedModules.has(mod)) {
-        selectedModules.delete(mod);
-        slot.classList.remove('active');
-        badge.classList.remove('equipped');
-      } else {
-        selectedModules.add(mod);
-        slot.classList.add('active');
-        badge.classList.add('equipped');
-        playTick();
-        if (typeof window.triggerCharGlow === 'function') {
-          window.triggerCharGlow();
-        }
-      }
-      updateSummary();
-    });
-  });
-
-  updateSummary();
-})();
-
-/* ============================================
-   HERO REVEALS on load
-   ============================================ */
-window.addEventListener('load', () => {
-  document.querySelectorAll('#hero .reveal').forEach(el => {
-    setTimeout(() => el.classList.add('visible'), 300);
+/* ─── PLATFORM CARDS FLIP ─── */
+document.querySelectorAll('.pc').forEach((card,i)=>{
+  ScrollTrigger.create({
+    trigger:card,start:'top 80%',once:true,
+    onEnter:()=>{setTimeout(()=>card.classList.add('flip'),i*200)}
   });
 });
+
+/* ─── CTA ─── */
+gsap.from('#cta-price',{y:-40,opacity:0,duration:.9,ease:'bounce.out',
+  scrollTrigger:{trigger:'#cta',start:'top 70%',once:true}
+});
+// Glow intensity on scroll
+ScrollTrigger.create({
+  trigger:'#cta',start:'top center',end:'bottom bottom',scrub:true,
+  onUpdate:self=>{
+    const i=self.progress;
+    document.getElementById('cta-glow').style.opacity=.5+i*1.5;
+  }
+});
+// Button pulse
+gsap.to('#btn-cta',{scale:1.02,duration:1.2,repeat:-1,yoyo:true,ease:'sine.inOut'});
+
+/* ─── MOBILE NAV ─── */
+const navLinks=document.querySelectorAll('#nav-mobile a');
+ScrollTrigger.create({
+  trigger:'#mission',start:'top center',onEnter:()=>setNav(0),onEnterBack:()=>setNav(0)
+});
+ScrollTrigger.create({
+  trigger:'#product',start:'top center',onEnter:()=>setNav(1),onEnterBack:()=>setNav(1)
+});
+ScrollTrigger.create({
+  trigger:'#loadout',start:'top center',onEnter:()=>setNav(2),onEnterBack:()=>setNav(2)
+});
+ScrollTrigger.create({
+  trigger:'#globe-section',start:'top center',onEnter:()=>setNav(3),onEnterBack:()=>setNav(3)
+});
+function setNav(i){navLinks.forEach((l,j)=>l.classList.toggle('active',j===i))}
 </script>
 </body>
 </html>
